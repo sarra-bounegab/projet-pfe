@@ -1,20 +1,15 @@
 <x-app-layout>
+@extends('layouts.navigation')
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-  
-</head>
-<body>
+@section('sidebar-links')
     
+    <a  href="{{ route('admin.gestionsGlobale') }}" class="block py-2 px-4  rounded hover:bg-green-600">
+        Gestion Utilisateurs Globale</a>
+    <a  href="{{ route('admin.gestionsinterventions') }}" class="block py-2 px-4  rounded hover:bg-green-600">
+        Gestion des interventions</a>
 
-
-    <div class="admin-content">
-        @yield('content')
-    </div>
-</body>
-</html>
+      
+@endsection
 </x-app-layout>
+
+

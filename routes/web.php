@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Intervention;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Support\Facades\Auth;
@@ -93,6 +95,76 @@ Route::middleware(['auth'])->group(function () {
     // Manage technicians
     Route::get('/admin/gestion-technicians', [AdminController::class, 'gestionTechnicians'])->name('admin.gestionTechnicians');
 });
+
+
+use App\Http\Controllers\TechnicianController;
+
+Route::resource('technicians', TechnicianController::class);
+
+
+
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    // Afficher la liste des techniciens
+    Route::get('/technicians', [TechnicianController::class, 'index'])->name('technicians.index');
+
+    // Afficher le formulaire de création d'un technicien
+    Route::get('/technicians/create', [TechnicianController::class, 'create'])->name('technicians.create');
+
+    // Enregistrer un nouveau technicien
+    Route::post('/technicians', [TechnicianController::class, 'store'])->name('technicians.store');
+});
+
+
+
+use App\Http\Controllers\Admin\UserController;
+
+// Route pour accéder à la gestion des utilisateurs
+Route::get('/admin/gestions-users', [UserController::class, 'index'])->name('admin.gestionsUsers');
+
+Route::get('/admin/gestions-globale', [UserController::class, 'gestionsGlobale'])->name('admin.gestionsGlobale');
+
+
+
+use App\Http\Controllers\InterventionController;
+
+
+// Routes pour l'admin
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/interventions', [InterventionController::class, 'adminIndex'])
+        ->name('admin.gestionsinterventions');
+});
+
+// Routes pour les utilisateurs normaux
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/interventions', [InterventionController::class, 'userIndex'])
+        ->name('user.gestionsinterventions');
+
+    Route::get('/user/interventions/create', [InterventionController::class, 'create'])
+        ->name('user.gestionsinterventions.create');
+
+    Route::post('/user/interventions', [InterventionController::class, 'store'])
+        ->name('user.gestionsinterventions.store');
+        Route::post('/user/interventions', [InterventionController::class, 'store'])
+        ->name('user.storeintervention');
+});
+
+// Routes pour modifier/supprimer les interventions
+Route::middleware(['auth'])->group(function () {
+    Route::get('/interventions/{id}/edit', [InterventionController::class, 'edit'])
+        ->name('interventions.edit');
+
+    Route::put('/interventions/{id}', [InterventionController::class, 'update'])
+        ->name('interventions.update');
+
+    Route::delete('/interventions/{id}', [InterventionController::class, 'destroy'])
+        ->name('interventions.destroy');
+});
+
+
+
+
+
 
 
 require __DIR__.'/auth.php';

@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
-        // Create the 'profiles' table (the roles)
         Schema::create('profiles', function (Blueprint $table) {
             $table->id(); // Primary key 'id'
             $table->string('description'); // Profile description (e.g., administrator, technician, user)
@@ -49,6 +46,13 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+
+
+       
+
+
+        
     }
 
     /**

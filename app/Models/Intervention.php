@@ -9,18 +9,19 @@ class Intervention extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'technician_id', 'description', 'status'];
+    protected $fillable = ['user_id', 'type_intervention_id', 'description', 'date', 'status'];
 
-    // Relation avec l'utilisateur qui demande l'intervention
+    // Relation avec l'utilisateur
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relation avec le technicien affecté à l'intervention
-    public function technician()
+    // Relation avec le type d'intervention
+    public function typeIntervention()
     {
-        return $this->belongsTo(User::class, 'technician_id');
+        return $this->belongsTo(TypeIntervention::class);
     }
+    
 }
 
