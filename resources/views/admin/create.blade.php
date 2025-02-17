@@ -4,7 +4,7 @@
     <div class="max-w-2xl mx-auto">
         <h2 class="text-2xl font-semibold mb-6">Ajouter un Technicien</h2>
 
-        <!-- Formulaire de création de techniciennnnnnnnn -->
+        <!-- Formulaire de création de techniciennnn -->
         <form action="{{ route('admin.technicians.store') }}" method="POST">
             @csrf
             <div class="mb-4">
