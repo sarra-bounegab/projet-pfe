@@ -4,7 +4,7 @@
     <div class="max-w-2xl mx-auto">
         <h2 class="text-2xl font-semibold mb-6">Ajouter un Technicien</h2>
 
-        <!-- Formulaire de création de technicien -->
+        <!-- Formulaire de création de techniciennnn -->
         <form action="{{ route('admin.technicians.store') }}" method="POST">
             @csrf
             <div class="mb-4">
@@ -12,7 +12,8 @@
                 <input type="text" name="name" id="name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ old('name') }}" required>
                 @error('name') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
             </div>
-
+ <!-- Formulaire de création de techniciennnn -->
+   <!-- Formulaire de création de techniciennnn -->
             <div class="mb-4">
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" name="email" id="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ old('email') }}" required>
