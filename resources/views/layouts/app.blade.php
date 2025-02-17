@@ -16,7 +16,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="">
-            @include('layouts.navigation')
+            
 
             <!-- Page Heading -->
             @isset($header)
