@@ -1,4 +1,4 @@
-@extends('layouts.admin') 
+@extends('layouts.admin')
 
 @section('content')
 
@@ -6,7 +6,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8  shadow-md h-full">
             <div class="bg-white  overflow-hidden  sm:rounded-lg ">
                 <div class="flex">
-                    
+
 
 
                         <!-- Formulaire de déconnexion -->
@@ -16,12 +16,17 @@
                         </form>
                     </div>
 
-                  
+
                 </div>
             </div>
         </div>
     </div>
 
 
-    @endsection
+
+
+
+@endsection
+
+
 
