@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'profile_id',  
+        'service_id',
     ];
 
     /**
@@ -55,5 +56,9 @@ class User extends Authenticatable
     return $this->belongsTo(Profile::class);
 }
 
+public function service()
+{
+    return $this->belongsTo(Service::class, 'service_id');
+}
 
 }

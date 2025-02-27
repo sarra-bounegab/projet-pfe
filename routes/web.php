@@ -162,9 +162,20 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+Route::put('/intervention/{id}/assign', [InterventionController::class, 'assignTechnician'])->name('intervention.assign');
 
 
 
+
+Route::get('/technician/interventions', [InterventionController::class, 'technicianIndex'])->name('technician.gestionsinterventions');
+
+
+Route::get('/admin/technicians', [AdminController::class, 'listTechnicians'])->name('admin.technicians');
+Route::put('/admin/assign-technician/{id}', [InterventionController::class, 'assignTechnician'])->name('admin.assignTechnician');
+
+
+
+Route::put('/intervention/{id}/unassign', [InterventionController::class, 'unassign'])->name('intervention.unassign');
 
 
 require __DIR__.'/auth.php';
