@@ -29,7 +29,7 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', function (Request $request) {
         $credentials = $request->only('email', 'password');
-    
+
         if (Auth::attempt($credentials)) {
             if (Auth::user()->status == 0) {
                 Auth::logout();
@@ -37,10 +37,10 @@ Route::middleware('guest')->group(function () {
                     'email' => 'Votre compte est en attente d\'approbation.',
                 ]);
             }
-    
+
             return redirect()->route('dashboard');
         }
-    
+
         return back()->withErrors([
             'email' => 'Identifiants invalides.',
         ]);
@@ -55,7 +55,7 @@ Route::middleware(['auth', CheckUserStatus::class])->group(function () {
     // Tableau de bord pour les utilisateurs connectés
     Route::get('/dashboard', function () {
         $user = Auth::user();
-        
+
         // Redirect based on the user's profile
         if ($user->profile && $user->profile->id == 1) {
             return view('admin.dashboard');  // Admin Dashboard
@@ -66,7 +66,7 @@ Route::middleware(['auth', CheckUserStatus::class])->group(function () {
         // Default dashboard for normal users
         return view('user.dashboard');  // User Dashboard (Default for all normal users)
     })->name('dashboard');
-  
+
     // Profil de l'utilisateur : affichage, mise à jour, suppression
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -81,17 +81,17 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name
 
 
 
-//side bar  admin content 
+//side bar  admin content
 
 
 
 Route::middleware(['auth'])->group(function () {
     // Admin dashboard
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    
+
     // Manage users
     Route::get('/admin/gestion-users', [AdminController::class, 'gestionUsers'])->name('admin.gestionUsers');
-    
+
     // Manage technicians
     Route::get('/admin/gestion-technicians', [AdminController::class, 'gestionTechnicians'])->name('admin.gestionTechnicians');
 });
@@ -161,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('interventions.destroy');
 });
 
+use App\Http\Controllers\StatisticsController;
 
 Route::put('/intervention/{id}/assign', [InterventionController::class, 'assignTechnician'])->name('intervention.assign');
 
