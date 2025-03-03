@@ -63,7 +63,7 @@ Route::middleware(['auth', CheckUserStatus::class])->group(function () {
             return view('technician.dashboard');  // Technician Dashboard
         }
 
-        // Default dashboard for normal users
+       
         return view('user.dashboard');  // User Dashboard (Default for all normal users)
     })->name('dashboard');
 
@@ -97,6 +97,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+
+
+//  partie technicien
+
 use App\Http\Controllers\TechnicianController;
 
 Route::resource('technicians', TechnicianController::class);
@@ -116,7 +120,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 });
 
 
-
+//partie gestions 
 use App\Http\Controllers\Admin\UserController;
 
 // Route pour accéder à la gestion des utilisateurs
@@ -126,8 +130,9 @@ Route::get('/admin/gestions-globale', [UserController::class, 'gestionsGlobale']
 
 
 
-use App\Http\Controllers\InterventionController;
+    // Routes gestions interventions
 
+use App\Http\Controllers\InterventionController;
 
 // Routes pour l'admin
 Route::middleware(['auth'])->group(function () {
@@ -161,6 +166,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('interventions.destroy');
 });
 
+
+
+
+// Routes statistique 
 use App\Http\Controllers\StatisticsController;
 
 Route::get('/admin/statistics', [StatisticsController::class, 'index'])->name('statistics')->middleware('auth');
@@ -170,9 +179,9 @@ use App\Http\Controllers\UserStatisticsController;
 Route::get('/user/statistics', [UserStatisticsController::class, 'index'])->name('user.statistics')->middleware('auth');
 
 
+// Routes assign/unassign tech
+
 Route::put('/intervention/{id}/assign', [InterventionController::class, 'assignTechnician'])->name('intervention.assign');
-
-
 
 
 Route::get('/technician/interventions', [InterventionController::class, 'technicianIndex'])->name('technician.gestionsinterventions');
@@ -180,10 +189,31 @@ Route::get('/technician/interventions', [InterventionController::class, 'technic
 
 Route::get('/admin/technicians', [AdminController::class, 'listTechnicians'])->name('admin.technicians');
 Route::put('/admin/assign-technician/{id}', [InterventionController::class, 'assignTechnician'])->name('admin.assignTechnician');
-
-
-
 Route::put('/intervention/{id}/unassign', [InterventionController::class, 'unassign'])->name('intervention.unassign');
+
+
+
+
+
+
+
+
+
+Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+
+
+
+
+
+Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
+
+
+
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+
+
+
 
 
 require __DIR__.'/auth.php';

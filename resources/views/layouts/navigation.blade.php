@@ -46,9 +46,9 @@
 
     <!-- Contenu principal -->
     <div class="flex-1   overflow-y-auto">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8"><!-- content a cote du side bar  --> 
+        <div class=""><!-- content a cote du side bar  --> 
             
-            <div class="p-4">
+            <div class="">
                 @yield('content')
             </div>
         </div>

@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use App\Models\Technician;
 use App\Models\User;
 
@@ -29,5 +29,15 @@ class AdminController extends Controller
         $technicians = User::where('profile_id', 2)->get(); // Récupère les utilisateurs ayant profile_id = 2
         return view('admin.technicians', compact('technicians'));
     }
+
+    use App\Models\Service; // Import the Service model
+
+    public function create()
+    {
+        $services = Service::all(); // Retrieve all services
+        return view('admin.users.create', compact('services'));
+    }
+    
+    
     
 }
