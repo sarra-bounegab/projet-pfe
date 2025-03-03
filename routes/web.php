@@ -163,6 +163,13 @@ Route::middleware(['auth'])->group(function () {
 
 use App\Http\Controllers\StatisticsController;
 
+Route::get('/admin/statistics', [StatisticsController::class, 'index'])->name('statistics')->middleware('auth');
+
+use App\Http\Controllers\UserStatisticsController;
+
+Route::get('/user/statistics', [UserStatisticsController::class, 'index'])->name('user.statistics')->middleware('auth');
+
+
 Route::put('/intervention/{id}/assign', [InterventionController::class, 'assignTechnician'])->name('intervention.assign');
 
 
