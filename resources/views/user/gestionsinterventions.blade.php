@@ -11,6 +11,7 @@
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-4 py-2 border">#</th>
+                            <th class="px-4 py-2 border">Titre</th>
                             <th class="px-4 py-2 border">Description</th>
                             <th class="px-4 py-2 border">Type d'intervention</th>
                             <th class="px-4 py-2 border">Statut</th>
@@ -22,6 +23,8 @@
                         @forelse($interventions as $intervention)
                             <tr class="text-center hover:bg-gray-50">
                                 <td class="border px-4 py-2">{{ $loop->iteration }}</td>
+                                <td class="border px-4 py-2">{{ $intervention->titre }}</td>
+
                                 <td class="border px-4 py-2">{{ $intervention->description }}</td>
                                 
                                 <!-- Affichage du type d'intervention (Matériel ou Logiciel) -->
@@ -60,7 +63,7 @@
                 </table>
 
                 <!-- Lien vers la page de création d'une nouvelle intervention -->
-                <a href="{{ route('user.gestionsinterventions.create') }}" class="btn btn-primary mb-3">Nouvelle Intervention</a>
+             
 
 
             </div>

@@ -1,6 +1,6 @@
-<div class="flex w-screen h-screen">
+<div class="flex  w-screen h-screen">
     <!-- Sidebar -->
-    <div class="w-64 bg-gray-800 text-white h-screen flex flex-col justify-between">
+    <div class="w-64 bg-gray-800 text-white h-screen flex flex-col ">
         
         <div class="p-8  text-center  ">
             <a href="{{ route('dashboard') }}">
@@ -45,9 +45,10 @@
     </div>
 
     <!-- Contenu principal -->
-    <div class="flex-1  p-6 overflow-y-auto">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="p-4">
+    <div class="flex-1   overflow-y-auto">
+        <div class=""><!-- content a cote du side bar  --> 
+            
+            <div class="">
                 @yield('content')
             </div>
         </div>
