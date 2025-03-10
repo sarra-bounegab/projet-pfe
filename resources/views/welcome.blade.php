@@ -47,7 +47,7 @@ spline-viewer {
     width: 100%;
     height: 54em; 
     object-fit: contain; 
-    transform: scale(0.8); 
+    transform: scale(1); 
 }
 
 

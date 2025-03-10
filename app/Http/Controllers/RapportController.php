@@ -162,4 +162,16 @@ public function edit($id)
 }
 
 
+
+public function destroy($id)
+{
+    $tache = Tache::find($id);
+    if ($tache) {
+        $tache->delete();
+        return response()->json(['success' => true, 'message' => 'Tâche supprimée avec succès.']);
+    }
+    return response()->json(['success' => false, 'message' => 'Tâche introuvable.']);
+}
+
+
 } 

@@ -317,6 +317,7 @@ Route::get('/get-taches', function (Request $request) {
 
 
 
+Route::delete('/supprimer-tache/{id}', [RapportController::class, 'destroy'])->name('taches.destroy');
 
 
 require __DIR__.'/auth.php';
