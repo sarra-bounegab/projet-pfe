@@ -26,5 +26,35 @@ class StatisticsController extends Controller
 
         return view('admin.statistics', compact('totalUsers', 'totalAdmins', 'totalTechnicians', 'totalInterventions', 'interventionLabels', 'interventionData'));
     }
-}
 
+    public function getGraphData(Request $request)
+{
+    $type = $request->input('type', 'interventions'); // Par défaut interventions
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    if ($type === 'interventions') {
+        $data = Intervention::selectRaw('service, COUNT(*) as count')
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('created_at', '<=', $endDate);
+            })
+            ->groupBy('service')
+            ->get();
+    } else {
+        $data = User::selectRaw('profile, COUNT(*) as count')
+            ->when($startDate, function ($query) use ($startDate) {
+                return $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                return $query->whereDate('created_at', '<=', $endDate);
+            })
+            ->groupBy('profile')
+            ->get();
+    }
+
+    return response()->json($data);
+}
+}
