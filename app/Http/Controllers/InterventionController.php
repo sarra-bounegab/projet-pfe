@@ -1,37 +1,46 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\User;
 
-use Illuminate\Http\Request;
+use App\Models\User; // Correct : Importation des modèles
 use App\Models\Intervention;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TypeIntervention;
 
 class InterventionController extends Controller
 {
-    // Liste des interventions pour l'admin
-    public function adminIndex()
+    public function index()
     {
-        $interventions = Intervention::with('user')->get(); // Récupérer toutes les interventions
-        return view('admin.gestionsinterventions', compact('interventions'));
+        $interventions = Intervention::all();
+        $techniciens = User::where('role', 'technicien')->get(); // Vérifie que "role" est bien défini pour les techniciens
+
+        return view('admin', compact('interventions', 'techniciens'));
     }
 
-    // Liste des interventions pour un utilisateur
+    public function adminIndex()
+{
+    $interventions = Intervention::with('user')->get();
+    $techniciens = User::where('profile_id', 2)->get(); // Sélectionne les techniciens
+
+    return view('admin.gestionsinterventions', compact('interventions', 'techniciens'));
+}
+
+
+
+
     public function userIndex()
     {
         $interventions = Intervention::where('user_id', Auth::id())->get();
         return view('user.gestionsinterventions', compact('interventions'));
     }
 
-    // Formulaire de création d'une intervention
     public function create()
     {
-        $types = TypeIntervention::all(); // Charger les types d'interventions
+        $types = TypeIntervention::all();
         return view('user.createintervention', compact('types'));
     }
 
-    // Enregistrer une intervention
     public function store(Request $request)
     {
         $request->validate([
@@ -51,15 +60,12 @@ class InterventionController extends Controller
         return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention ajoutée.');
     }
 
-
-    // Modifier une intervention
     public function edit($id)
     {
         $intervention = Intervention::findOrFail($id);
         return view('user.editintervention', compact('intervention'));
     }
 
-    // Mise à jour d'une intervention
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -73,7 +79,6 @@ class InterventionController extends Controller
         return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention mise à jour.');
     }
 
-    // Supprimer une intervention
     public function destroy($id)
     {
         $intervention = Intervention::findOrFail($id);
@@ -83,43 +88,69 @@ class InterventionController extends Controller
     }
 
     public function assignTechnicianForm($id)
+    {
+        $intervention = Intervention::findOrFail($id);
+        $technicians = User::where('profile_id', 2)->get();
+
+        return view('admin.assignTechnician', compact('intervention', 'technicians'));
+    }
+
+    public function assignTechnician(Request $request)
+    {
+        $request->validate([
+            'intervention_id' => 'required|exists:interventions,id',
+            'technicien_id' => 'required|exists:users,id',
+        ]);
+
+        $intervention = Intervention::findOrFail($request->intervention_id);
+        $intervention->technicien_id = $request->technicien_id;
+        $intervention->status = 'En cours';
+        $intervention->save();
+
+        return redirect()->back()->with('success', 'Technicien attribué avec succès.');
+    }
+
+    public function cancelTechnician(Request $request)
 {
-    $intervention = Intervention::findOrFail($id);
-    $technicians = User::where('profile_id', 2)->get();
-    // Sélectionne les techniciens
-
-    return view('admin.assignTechnician', compact('intervention', 'technicians'));
-}
-
-public function assignTechnician(Request $request, $id)
-{
-    dd($request->all()); 
-
     $request->validate([
-        'technicien_id' => 'required|exists:users,id',
+        'intervention_id' => 'required|exists:interventions,id',
     ]);
 
-    $intervention = Intervention::findOrFail($id);
-    $intervention->technicien_id = $request->technicien_id;
-    $intervention->status = 'En attente'; // Mettre l'état initial après assignation
-    $intervention->save();
+    $intervention = Intervention::findOrFail($request->intervention_id);
 
-    return redirect()->route('admin.gestionsinterventions')->with('success', 'Intervention attribuée avec succès.');
+    if ($intervention->status === 'En cours') {
+        $intervention->technicien_id = null; 
+        $intervention->status = 'En attente'; 
+        $intervention->save();
+
+        return response()->json(['success' => true, 'message' => 'Attribution annulée.']);
+    }
+
+    return response()->json(['success' => false, 'message' => 'Action non autorisée.'], 403);
+}
+
+
+public function ajouterTacheRapport(Request $request, $rapportId) {
+    $request->validate([
+        'description' => 'required|string',
+        'date_execution' => 'required|date'
+    ]);
+
+    $tache = TacheRapport::create([
+        'rapport_id' => $rapportId,
+        'description' => $request->description,
+        'date_execution' => $request->date_execution
+    ]);
+
+    return response()->json(['message' => 'Tâche ajoutée', 'tache' => $tache]);
 }
 
 
 
-public function unassign($id)
-{
-    $intervention = Intervention::findOrFail($id);
-    
-    // Supprimer l'attribution et remettre l'état à "En attente"
-    $intervention->update([
-        'technicien_id' => null,
-        'status' => 'En attente'
-    ]);
 
-    return redirect()->back()->with('success', 'L\'attribution a été annulée.');
-}
+
+
+
+
 
 }

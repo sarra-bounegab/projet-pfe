@@ -6,12 +6,21 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+
+use App\Models\Intervention;
+
 use App\Models\Service;
 
 class UserController extends Controller
 {
-    
-   
+  
+    public function index()
+    {
+        
+        $users = User::all(); // Récupère tous les utilisateurs
+        return view('admin.gestionsglobale', compact('users'));
+
+    }
 
    public function create()
    {
@@ -29,14 +38,13 @@ class UserController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-    $user->status = $request->status;
-    $user->save();
-
-    return redirect()->back()->with('success', 'Utilisateur mis à jour avec succès.');
-}
-
+    {
+        $user = User::findOrFail($id);
+        $user->update($request->only(['name', 'email']));
+        
+        return redirect()->route('users.index')->with('success', 'Utilisateur mis à jour avec succès.');
+    }
+    
 
 
 public function store(Request $request)

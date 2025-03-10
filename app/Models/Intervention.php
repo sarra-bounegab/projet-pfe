@@ -35,6 +35,11 @@ class Intervention extends Model
     return $this->belongsTo(User::class, 'technicien_id');
 }
 
+public function rapport()
+{
+    return $this->belongsTo(RapportTechnicien::class, 'rapport_id');
+}
+
     
 }
 

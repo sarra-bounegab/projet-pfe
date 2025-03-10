@@ -215,5 +215,108 @@ Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
 
 
+Route::put('/admin/gestions-globale/{id}', [UserController::class, 'update'])->name('users.update');
+
+
+Route::get('admin/users', [UserController::class, 'index'])->name('users.index');
+
+
+Route::resource('users', UserController::class);
+
+
+
+
+
+
+
+
+
+Route::put('/assign-technician', [InterventionController::class, 'assignTechnician'])->name('assign.technician');
+
+
+
+
+
+Route::put('/assign-technician', [InterventionController::class, 'assignTechnician'])->name('assign.technician');
+
+
+
+
+
+Route::put('/intervention/cancel', [InterventionController::class, 'cancelTechnician'])->name('cancel.technician');
+
+
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/technician/interventions', [TechnicianController::class, 'gestionInterventions'])
+         ->name('technician.interventions');
+});
+
+
+
+
+Route::post('/rapports/{id}/tache', [InterventionController::class, 'ajouterTacheRapport']);
+
+
+
+
+use App\Http\Controllers\RapportController;
+
+Route::post('/rapports/ajouter', [RapportController::class, 'store'])->name('rapports.store');
+
+Route::post('/rapport/ajouter', [RapportController::class, 'store']);
+Route::post('/rapports/enregistrer', [RapportController::class, 'store'])->name('rapports.store');
+
+
+
+
+Route::post('/rapports', [RapportController::class, 'store'])->name('rapports.store');
+
+
+Route::get('/interventions/{id}/rapport', [RapportController::class, 'getRapport']);
+
+
+
+
+
+Route::get('/interventions/{id}/edit', [InterventionController::class, 'edit']);
+
+
+Route::post('/ajouter-tache', [RapportController::class, 'ajouterTache']);
+
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+Route::get('/get-taches', function (Request $request) {
+    $interventionId = $request->query('intervention_id');
+
+    if (!$interventionId) {
+        return response()->json(['success' => false, 'message' => 'ID intervention manquant'], 400);
+    }
+
+
+    $rapport = DB::table('rapports')
+        ->where('intervention_id', $interventionId)
+        ->first();
+
+    if (!$rapport) {
+        return response()->json(['success' => false, 'message' => 'Aucun rapport trouvé'], 404);
+    }
+
+    $taches = DB::table('taches')
+        ->where('rapport_id', $rapport->id)
+        ->get();
+
+    return response()->json(['success' => true, 'taches' => $taches]);
+});
+
+
+
+
+
 
 require __DIR__.'/auth.php';

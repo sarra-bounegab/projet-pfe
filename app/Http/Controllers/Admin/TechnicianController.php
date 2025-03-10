@@ -10,10 +10,13 @@ class TechnicianController extends Controller
 {
     // Afficher la liste des techniciens
     public function index()
-    {
-        $technicians = Technician::all();
-        return view('admin.technicians.index', compact('technicians'));
-    }
+{
+    $interventions = Intervention::all();
+    $techniciens = User::where('role', 'technicien')->get(); // Récupère les techniciens
+
+    return view('admin', compact('interventions', 'techniciens'));
+}
+
 
     // Afficher le formulaire de création
     public function create()
@@ -34,5 +37,20 @@ class TechnicianController extends Controller
 
         return redirect()->route('admin.technicians.index')->with('success', 'Technicien créé avec succès.');
     }
+
+
+    public function gestionInterventions()
+{
+    // Récupérer l'ID du technicien connecté
+    $technicianId = auth()->user()->id;
+
+    // Récupérer les interventions qui lui sont attribuées
+    $interventions = Intervention::where('technicien_id', $technicianId)
+                                 ->orderBy('created_at', 'desc')
+                                 ->get();
+
+    return view('technician.gestionsinterventions', compact('interventions'));
+}
+
 }
 

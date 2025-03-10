@@ -15,7 +15,8 @@
 
 
 
-                <table class="min-w-full  table-auto border-collapse border border-gray-300">
+<table id="userTable" class="min-w-full table-auto border-collapse border border-gray-300">
+
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-4 py-2 border">#</th>
@@ -64,9 +65,10 @@
             </td>
             <td class="border px-4 py-2">
             <button onclick="openEditUserModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', {{ $user->status }})"
-                                        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                        Modifier
-                                    </button>
+        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+    Modifier
+</button>
+
             </td>
         </tr>
     @endforeach
@@ -82,63 +84,50 @@
 
 
 
-<!-- Modal d'édition -->
-<div id="editUserModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
-        <div class="bg-white p-6 rounded shadow-lg w-96">
-            <h2 class="text-xl font-semibold mb-4">Modifier l'utilisateur</h2>
-            <form id="editUserForm" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="user_id" name="user_id">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium">Nom</label>
-                    <input type="text" id="user_name" name="name" class="w-full border rounded p-2 bg-gray-200" disabled>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium">Email</label>
-                    <input type="email" id="user_email" name="email" class="w-full border rounded p-2 bg-gray-200" disabled>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium">Service</label>
-                    <input type="text" id="user_service" name="service" class="w-full border rounded p-2 bg-gray-200" disabled>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium">Profil</label>
-                    <select name="profile_id" class="w-full border rounded p-2">
-                        <option value="1">Administrateur</option>
-                        <option value="2">Technicien</option>
-                        <option value="3">Utilisateur</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium">Statut</label>
-                    <select id="user_status" name="status" class="w-full border rounded p-2">
-                        <option value="1">Actif</option>
-                        <option value="0">Inactif</option>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-2">
-                <button type="button" onclick="closeModal()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
-                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Enregistrer</button>
-                </div>
-            </form>
-        </div>
+
+    <div id="editUserModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-lg font-semibold mb-4">Modifier l'utilisateur</h2>
+        <form id="editUserForm" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="edit_user_id" name="id">
+            <input type="text" id="edit_user_name" name="name" class="border p-2 w-full mb-2" required>
+            <input type="email" id="edit_user_email" name="email" class="border p-2 w-full mb-2" required>
+            <select id="edit_user_status" name="status" class="border p-2 w-full mb-2">
+                <option value="1">Actif</option>
+                <option value="0">Inactif</option>
+            </select>
+            <div class="flex justify-end">
+                <button type="button" onclick="closeEditUserModal()" class="mr-2 text-gray-600">Annuler</button>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Modifier</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        function openEditUserModal(id, name, email, status) {
-            document.getElementById('user_id').value = id;
-            document.getElementById('user_name').value = name;
-            document.getElementById('user_email').value = email;
-            document.getElementById('user_status').value = status;
-            document.getElementById('editUserForm').action = '/users/' + id;
-            document.getElementById('editUserModal').classList.remove('hidden');
-        }
+
+
+<script>
+    function openEditUserModal(id, name, email, status) {
+      
+        document.getElementById('edit_user_id').value = id;
+        document.getElementById('edit_user_name').value = name;
+        document.getElementById('edit_user_email').value = email;
+        document.getElementById('edit_user_status').value = status;
+
+   
+        document.getElementById('editUserForm').action = '/users/' + id;
+
         
-        function closeModal() {
-            document.getElementById('editUserModal').classList.add('hidden');
-        }
-    </script>
+        document.getElementById('editUserModal').classList.remove('hidden');
+    }
+
+    function closeEditUserModal() {
+       
+        document.getElementById('editUserModal').classList.add('hidden');
+    }
+</script>
 
 
 
@@ -148,16 +137,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-<!-- Fenêtre modale -->
+<!-- Fenêtre modale cachée par défaut -->
 <div id="userModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-xl font-semibold mb-4">Ajouter un nouvel utilisateur</h2>
@@ -183,9 +163,6 @@
                     <option value="3">Utilisateur</option>
                 </select>
             </div>
-
-
-        
 
             <div class="mb-4">
                 <label class="block text-sm font-medium">Statut</label>
@@ -219,6 +196,20 @@
 
 
 
+<script>
+    $(document).ready(function () {
+        $('#userTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/French.json"
+            },
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "responsive": true
+        });
+    });
+</script>
 
 
 
@@ -242,6 +233,4 @@
 
 
 
-
-
-@endsection
+@endsection 
