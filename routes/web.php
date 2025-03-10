@@ -169,6 +169,16 @@ use App\Http\Controllers\UserStatisticsController;
 
 Route::get('/user/statistics', [UserStatisticsController::class, 'index'])->name('user.statistics')->middleware('auth');
 
+use App\Http\Controllers\PDFController;
+
+// 📄 Route pour générer le PDF des interventions
+Route::get('/admin/interventions/pdf', [PDFController::class, 'generateInterventionsPDF'])->name('interventions.pdf');
+
+// 📄 Route pour générer le PDF des utilisateurs
+Route::get('/admin/users/pdf', [PDFController::class, 'generateUsersPDF'])->name('users.pdf');
+
+// 📄 Route pour générer le PDF des statistiques
+Route::get('/admin/statistics/pdf', [PDFController::class, 'generateStatisticsPDF'])->name('statistics.pdf');
 
 
 

@@ -14,7 +14,7 @@ class TypeIntervention extends Model
     // Relation avec la table `interventions`
     public function interventions()
     {
-        return $this->hasMany(Intervention::class);
+        return $this->hasMany(Intervention::class, 'type_intervention_id');
     }
 
     public function typeIntervention()

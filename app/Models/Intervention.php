@@ -22,6 +22,10 @@ class Intervention extends Model
     {
         return $this->belongsTo(TypeIntervention::class);
     }
-    
+    public function technician()
+    {
+        return $this->belongsTo(User::class, 'technician_id'); // Assurez-vous que la clé étrangère est correcte
+    }
+
 }
 
