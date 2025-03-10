@@ -3,6 +3,8 @@
 
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Intervention;
 
 use App\Models\Technician;
 use Illuminate\Http\Request;
@@ -76,5 +78,14 @@ class TechnicianController extends Controller
         $technician->delete();
 
         return redirect()->route('technicians.index')->with('success', 'Technicien supprimé avec succès!');
+    }
+
+   
+    public function gestionInterventions()
+    {
+        $technicianId = Auth::id(); // Récupérer l'ID du technicien connecté
+        $interventions = Intervention::where('technicien_id', $technicianId)->get();
+
+        return view('technician.gestionsinterventions', compact('interventions'));
     }
 }

@@ -13,18 +13,58 @@
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
     @endif
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
+
+    <style>
+   .content-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4%;
+    width: 90%;
+  
+    margin: auto;
+}
+
+.text-section {
+    flex: 1;
+    min-width: 40%;
+    text-align: left;
+}
+
+.spline-container {
+    flex: 1;
+    min-width: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+spline-viewer {
+    width: 100%;
+    height: 54em; 
+    object-fit: contain; 
+    transform: scale(1); 
+}
+
+
+
+
+</style>
+
 </head>
 <body class="bg-gray-100">
     <div class="min-h-screen flex flex-col">
-        <!-- Navigation Bar at the top -->
+        <!-- Navigation Bar  -->
         <header class="bg-white shadow-md py-4">
-            <div class="max-w-screen-xl mx-auto px-4 flex justify-between items-center">
+            <div class="max-w-screen-xl mx-auto px-6 flex justify-between items-center">
                 <!-- Logo on the left -->
                 <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-30 h-12 mr-4"  alt="Logo-a">
 
-                <!-- Navigation for login/register on the right -->
+                <!-- Navigation  -->
                 @if (Route::has('login'))
                     <nav class="flex space-x-6">
                         @auth
@@ -47,36 +87,19 @@
             </div>
         </header>
 
-        <!-- Content Section in the middle, taking available space -->
-        <div class="flex-grow flex justify-center items-center px-4 py-16">
-            <div class="text-center max-w-2xl">
-                <p class="text-lg text-gray-700 font-medium mb-4">
-                Cette application est alimentée par une base de données MySQL. Nous stockons les profils des utilisateurs et les interventions techniques pour une gestion optimale et efficace.
-                </p>
-            </div>
-        </div>
-
-        <!-- Footer at the bottom 
-        <footer class="bg-gray-800 text-white py-6 mt-auto">
-            <div class="max-w-screen-xl mx-auto px-4">
-                <div class="flex justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold">Contact Us</h3>
-                        <p class="mt-2">Email: contact@anep.com</p>
-                        <p>Phone: +123 456 7890</p>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold">Follow Us</h3>
-                        <div class="mt-2 space-x-4">
-                            <a href="#" class="text-green-400 hover:text-green-600 transition duration-300">Facebook</a>
-                            <a href="#" class="text-green-400 hover:text-green-600 transition duration-300">Twitter</a>
-                            <a href="#" class="text-green-400 hover:text-green-600 transition duration-300">Instagram</a>
-                        </div>
-                    </div>
+        <!-- Content Section -->
+        <div class="flex-grow flex justify-center items-center ">
+            <div class="content-wrapper">
+                <div class="text-section">
+                    <p class="text-lg text-gray-700 font-medium mb-4">
+                        Cette application est alimentée par une base de données MySQL. Nous stockons les profils des utilisateurs et les interventions techniques pour une gestion optimale et efficace.
+                    </p>
+                </div>
+                <div class="spline-container">
+                <spline-viewer loading-anim-type="spinner-small-dark" url="https://prod.spline.design/UBIXlM5VuxNGq-CF/scene.splinecode"></spline-viewer>
                 </div>
             </div>
-        </footer>-->
+        </div>
     </div>
 </body>
 </html>
-
