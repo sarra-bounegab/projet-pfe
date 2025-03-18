@@ -231,6 +231,8 @@ Route::resource('users', UserController::class);
 
 
 
+
+
 Route::put('/assign-technician', [InterventionController::class, 'assignTechnician'])->name('assign.technician');
 
 
@@ -291,33 +293,83 @@ Route::post('/ajouter-tache', [RapportController::class, 'ajouterTache']);
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-Route::get('/get-taches', function (Request $request) {
-    $interventionId = $request->query('intervention_id');
-
-    if (!$interventionId) {
-        return response()->json(['success' => false, 'message' => 'ID intervention manquant'], 400);
-    }
 
 
-    $rapport = DB::table('rapports')
-        ->where('intervention_id', $interventionId)
-        ->first();
-
-    if (!$rapport) {
-        return response()->json(['success' => false, 'message' => 'Aucun rapport trouvé'], 404);
-    }
-
-    $taches = DB::table('taches')
-        ->where('rapport_id', $rapport->id)
-        ->get();
-
-    return response()->json(['success' => true, 'taches' => $taches]);
-});
 
 
+
+Route::post('/rapports', [RapportController::class, 'store'])->name('rapports.store');
 
 
 Route::delete('/supprimer-tache/{id}', [RapportController::class, 'destroy'])->name('taches.destroy');
 
+
+
+
+
+Route::get('/get-taches', [App\Http\Controllers\RapportController::class, 'getTaches']);
+
+
+
+
+
+
+
+
+Route::post('/rapports/store', [RapportController::class, 'store'])->name('rapports.store');
+Route::get('/intervention/{id}/taches', [RapportController::class, 'getTachesByIntervention'])->name('intervention.taches');
+
+
+
+use App\Models\Tache;
+
+Route::get('/intervention/{id}/taches', function ($id) {
+    $taches = Tache::whereHas('rapport', function ($query) use ($id) {
+        $query->where('intervention_id', $id);
+    })->get();
+
+    return response()->json([
+        'success' => true,
+        'taches' => $taches
+    ]);
+});
+
+
+
+Route::get('/intervention/{id}/rapport-et-taches', [RapportController::class, 'getRapportEtTaches']);
+
+
+
+
+
+// Route pour créer un rapport
+Route::post('/rapport/store', [RapportController::class, 'store'])->name('rapports.store');
+
+// Route pour mettre à jour le rapport et ses tâches
+Route::post('/rapport/{rapport}/update-taches', [RapportController::class, 'updateTaches'])->name('rapports.updateTaches');
+
+
+
+
+
+
+
+Route::get('/intervention/{id}/rapport', [RapportController::class, 'getRapportEtTaches']);
+Route::post('/rapports/storeOrUpdate', [RapportController::class, 'storeOrUpdate'])->name('rapports.storeOrUpdate');
+
+Route::post('intervention/{id}/cloturer', [InterventionController::class, 'cloturer'])->name('intervention.cloturer');
+
+
+
+
+Route::get('/intervention/{id}/details', [InterventionController::class, 'show'])->name('intervention.details');
+
+
+Route::get('/interventions', [InterventionController::class, 'index'])->name('intervention.index');
+Route::get('/intervention/{id}/rapport', [InterventionController::class, 'showRapport']);
+
+
+
+Route::get('/intervention/{id}/rapport', [InterventionController::class, 'getRapport'])->name('intervention.rapport');
 
 require __DIR__.'/auth.php';

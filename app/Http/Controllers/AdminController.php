@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Technician;
 use App\Models\User;
-
+  use App\Models\Service; // Import the Service model
 class AdminController extends Controller
 {
     // Show the admin dashboard
@@ -22,7 +22,7 @@ class AdminController extends Controller
     return view('admin.users.index', compact('users'));
      }
     // Show the list of technicians
-    use App\Models\User;
+  
 
     public function listTechnicians()
     {
@@ -30,7 +30,7 @@ class AdminController extends Controller
         return view('admin.technicians', compact('technicians'));
     }
 
-    use App\Models\Service; // Import the Service model
+  
 
     public function create()
     {

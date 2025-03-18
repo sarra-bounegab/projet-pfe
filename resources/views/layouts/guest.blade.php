@@ -31,12 +31,12 @@
                             </a>
                         @else
                             <a href="{{ route('login') }}" class="text-xl font-semibold px-4 py-2 text-black transition duration-300 hover:text-white hover:bg-green-500 rounded-md ring-1 ring-transparent focus:outline-none focus-visible:ring-[#FF2D20]">
-                                Log in
+                            Connexion
                             </a>
 
                             @if (Route::has('register'))
                                 <a href="{{ route('register') }}" class="text-xl font-semibold px-4 py-2 text-black transition duration-300 hover:text-white hover:bg-green-500 rounded-md ring-1 ring-transparent focus:outline-none focus-visible:ring-[#FF2D20]">
-                                    Register
+                                S'inscrire
                                 </a>
                             @endif
                         @endauth
@@ -52,7 +52,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center  sm:pt-0 bg-white ">
             <div>
                 
-                <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-30 h-12 mr-4"   href="/"alt="Logo-a">
+                <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-30 h-12 mr-4"  alt="Logo-a">
                 </a>
             </div>
 

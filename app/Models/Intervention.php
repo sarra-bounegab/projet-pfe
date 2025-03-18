@@ -35,11 +35,28 @@ class Intervention extends Model
     return $this->belongsTo(User::class, 'technicien_id');
 }
 
+// app/Models/Intervention.php
 public function rapport()
 {
-    return $this->belongsTo(RapportTechnicien::class, 'rapport_id');
+    return $this->hasOne(Rapport::class);
 }
 
+
+    public function index()
+    {
+        $interventions = Intervention::all(); // Ou filtrer selon l'utilisateur
+        return view('intervention.index', compact('interventions'));
+    }
     
+// Relation avec l'intervention
+public function intervention()
+{
+    return $this->belongsTo(Intervention::class);
 }
+
+
+
+}
+    
+
 

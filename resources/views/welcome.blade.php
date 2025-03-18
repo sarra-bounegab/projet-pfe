@@ -1,105 +1,108 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="fr">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Laravel</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Styles / Scripts -->
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endif
-
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
-
+    <meta charset="UTF-8">
+    <title>ANEP Plateforme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-   .content-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 4%;
-    width: 90%;
-  
-    margin: auto;
-}
+        /* Curseur ligne verte */
+        .typewriter::after {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.5em;
+            background-color:rgb(0, 211, 78); /* Vert ANEP */
+            margin-left: 3px;
+            animation: blink 0.7s infinite;
+            vertical-align: middle;
+        }
 
-.text-section {
-    flex: 1;
-    min-width: 40%;
-    text-align: left;
-}
-
-.spline-container {
-    flex: 1;
-    min-width: 55%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-spline-viewer {
-    width: 100%;
-    height: 54em; 
-    object-fit: contain; 
-    transform: scale(1); 
-}
-
-
-
-
-</style>
-
+        /* Effet clignotant */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="min-h-screen flex flex-col">
-        <!-- Navigation Bar  -->
-        <header class="bg-white shadow-md py-4">
-            <div class="max-w-screen-xl mx-auto px-6 flex justify-between items-center">
-                <!-- Logo on the left -->
-                <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-30 h-12 mr-4"  alt="Logo-a">
 
-                <!-- Navigation  -->
-                @if (Route::has('login'))
-                    <nav class="flex space-x-6">
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="text-xl font-semibold px-4 py-2 text-black transition duration-300 hover:text-white hover:bg-green-500 rounded-md ring-1 ring-transparent focus:outline-none focus-visible:ring-[#FF2D20]">
-                                Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="text-xl font-semibold px-4 py-2 text-black transition duration-300 hover:text-white hover:bg-green-500 rounded-md ring-1 ring-transparent focus:outline-none focus-visible:ring-[#FF2D20]">
-                                Log in
-                            </a>
+<body class="bg-gray-100 min-h-screen flex flex-col">
 
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="text-xl font-semibold px-4 py-2 text-black transition duration-300 hover:text-white hover:bg-green-500 rounded-md ring-1 ring-transparent focus:outline-none focus-visible:ring-[#FF2D20]">
-                                    Register
-                                </a>
-                            @endif
-                        @endauth
-                    </nav>
-                @endif
+    <!-- Navbar -->
+    <header class="bg-white shadow-md py-4">
+        <div class="max-w-screen-xl mx-auto px-6 flex justify-between items-center">
+            <!-- Logo -->
+            <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-32 h-12 object-contain" alt="Logo ANEP">
+
+            <!-- Navigation -->
+            @if (Route::has('login'))
+                <nav class="flex space-x-6">
+                    @auth
+                        <a href="{{ url('/dashboard') }}"
+                            class="text-lg font-semibold px-4 py-2 text-black hover:text-white hover:bg-green-500 rounded-md transition">
+                            Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="text-lg font-semibold px-4 py-2 text-black hover:text-white hover:bg-green-500 rounded-md transition">
+                            Connexion
+                        </a>
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}"
+                                class="text-lg font-semibold px-4 py-2 text-black hover:text-white hover:bg-green-500 rounded-md transition">
+                                S'inscrire
+                            </a>
+                        @endif
+                    @endauth
+                </nav>
+            @endif
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <main class="flex-1 flex items-center justify-center p-10">
+        <div class="flex flex-wrap md:flex-nowrap w-full max-w-7xl items-center gap-10">
+            
+            <!-- Texte animé -->
+            <div class="w-full md:w-1/2 pr-0 md:pr-6 text-center md:text-left space-y-6">
+                <h1 class="text-5xl font-extrabold text-green-600 drop-shadow-md">ANEP</h1>
+                <p id="typing-text" class="typewriter text-2xl leading-relaxed text-gray-800 font-medium overflow-hidden break-words h-32"></p>
+
             </div>
-        </header>
 
-        <!-- Content Section -->
-        <div class="flex-grow flex justify-center items-center ">
-            <div class="content-wrapper">
-                <div class="text-section">
-                    <p class="text-lg text-gray-700 font-medium mb-4">
-                        Cette application est alimentée par une base de données MySQL. Nous stockons les profils des utilisateurs et les interventions techniques pour une gestion optimale et efficace.
-                    </p>
-                </div>
-                <div class="spline-container">
-                <spline-viewer loading-anim-type="spinner-small-dark" url="https://prod.spline.design/UBIXlM5VuxNGq-CF/scene.splinecode"></spline-viewer>
-                </div>
+          
+            <div class="w-full md:w-1/2 flex items-center justify-center">
+                
+                <img src="{{ asset('images/Digital pass@1-512x512 (2).png') }}" 
+                     alt="Badge ANEP" 
+                     class="max-w-xs md:max-w-sm rounded-xl shadow-xl">
             </div>
         </div>
-    </div>
+    </main>
+
+    
+    
+    <script>
+        const text = "Bienvenue sur la plateforme officielle de gestion des interventions de l'ANEP. " 
+            
+
+        let index = 0;
+        const speed = 65; // Vitesse 
+
+        function typeWriter() {
+            const container = document.getElementById("typing-text");
+            if (index < text.length) {
+                let currentChar = text.charAt(index);
+                container.innerHTML += currentChar;
+                index++;
+                setTimeout(typeWriter, speed);
+            }
+        }
+
+        
+        window.onload = typeWriter;
+    </script>
+
 </body>
+
 </html>

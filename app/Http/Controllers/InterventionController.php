@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User; // Correct : Importation des modèles
+use App\Models\User; 
 use App\Models\Intervention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TypeIntervention;
+use App\Models\Rapport;
 
 class InterventionController extends Controller
 {
@@ -146,11 +147,68 @@ public function ajouterTacheRapport(Request $request, $rapportId) {
 }
 
 
+public function cloturer($id)
+{
+    $intervention = Intervention::findOrFail($id);
+
+    if ($intervention->status !== 'Terminé') {
+        $intervention->status = 'Terminé';
+        $intervention->save();
+        return redirect()->back()->with('success', 'Intervention clôturée avec succès.');
+    }
+
+    return redirect()->back()->with('info', 'Cette intervention est déjà terminée.');
+}
+
+public function showRapport($id)
+{
+    $intervention = Intervention::findOrFail($id);
+
+    if ($intervention->status != 'Terminé') {
+        return response()->json(['error' => 'Rapport non disponible pour cette intervention.']);
+    }
+
+    $rapport = Rapport::with(['technicien', 'taches'])->where('intervention_id', $id)->first();
+
+    if (!$rapport) {
+        return response()->json(['error' => 'Aucun rapport trouvé.']);
+    }
+    $taches = \App\Models\Tache::where('rapport_id', $rapport->id)->pluck('description');
 
 
+    return response()->json([
+        'rapport_id' => $rapport->id,
+        'intervention_id' => $rapport->intervention_id,
+        'date_traitement' => $rapport->created_at->format('d/m/Y H:i'),
+        'technicien_nom' => $rapport->technicien ? $rapport->technicien->name : 'Non défini',
+        'contenu' => $rapport->contenu,
+        'taches' => $rapport->taches->map(function ($tache) {
+            return [
+                'id' => $tache->id,
+                'description' => $tache->description
+            ];
+        })
+    ]);
+}
 
 
+public function getRapport($interventionId)
+{
+    $rapport = Rapport::where('intervention_id', $interventionId)->with('taches', 'technicien')->first();
 
+    if (!$rapport) {
+        return response()->json(['error' => 'Aucun rapport trouvé pour cette intervention.'], 404);
+    }
+
+    return response()->json([
+        'rapport_id' => $rapport->id,
+        'intervention_id' => $rapport->intervention_id,
+        'date_traitement' => $rapport->date_traitement,
+        'technicien_nom' => $rapport->technicien ? $rapport->technicien->name : 'Non attribué',
+        'contenu' => $rapport->contenu,
+        'taches' => $rapport->taches->pluck('description'),
+    ]);
+}
 
 
 }

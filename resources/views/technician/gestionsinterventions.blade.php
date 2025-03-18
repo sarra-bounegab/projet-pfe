@@ -40,13 +40,25 @@
                                 <span class="px-2 py-1 bg-gray-500 text-white rounded">En attente</span>
                             @endif
                         </td>
-                        <td class="border px-4 py-2 text-center">
-                            <button type="button" 
-                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
-                                onclick="ouvrirModalTaches({{ $intervention->id }})">
-                                + Ajouter un Rapport & Tâches
-                            </button>
-                        </td>
+                        <td class="border px-4 py-2 text-center space-y-2">
+    <!-- Bouton Ajouter un rapport -->
+    <button onclick="ouvrirModalTaches({{ $intervention->id }})"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+        + Ajouter un Rapport
+    </button>
+
+    <form action="{{ route('intervention.cloturer', $intervention->id) }}" method="POST" style="display: inline;">
+
+    @csrf
+    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" onclick="return confirm('Voulez-vous vraiment clôturer cette intervention ?')">
+        Clôturer
+    </button>
+</form>
+
+
+</td>
+
+
                     </tr>
                 @endforeach
             </tbody>
@@ -54,57 +66,64 @@
     </div>
 </div>
 
-{{-- Modal pour ajouter rapport et tâches --}}
-<div id="modal-taches" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div class="bg-white shadow-2xl rounded-2xl w-full max-w-xl p-6 relative">
-        <h2 class="text-2xl font-bold mb-4 text-gray-800">Ajouter un Rapport et des Tâches</h2>
 
-        <form id="formRapport" method="POST" action="{{ route('rapports.store') }}">
-            @csrf
-            <input type="hidden" id="intervention_id" name="intervention_id">
+<script>
+    function cloturerIntervention(interventionId, buttonElement) {
+        if (confirm('Êtes-vous sûr de vouloir clôturer cette intervention ?')) {
+            fetch(`/intervention/${interventionId}/cloturer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Mise à jour du statut dans le tableau sans recharger la page
+                    const statusCell = buttonElement.closest('tr').querySelector('td:nth-child(5)');
+                    statusCell.innerHTML = '<span class="px-2 py-1 bg-red-600 text-white rounded">Clôturée</span>';
+                    
+                    // Optionnel: désactiver les boutons après clôture
+                    buttonElement.disabled = true;
+                    const addButton = buttonElement.parentElement.querySelector('button:first-child');
+                    addButton.disabled = true;
+                    addButton.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    alert('Erreur lors de la clôture.');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur réseau.');
+            });
+        }
+    }
+</script>
 
-            {{-- Champ rapport --}}
-            <div class="mb-4">
-                <label for="contenu" class="block text-gray-700 font-semibold mb-2">Contenu du rapport :</label>
-                <textarea name="contenu" id="contenu" 
-                    class="border rounded-lg px-4 py-2 w-full focus:ring focus:ring-blue-200" 
-                    rows="3" placeholder="Décrire l'intervention..."></textarea>
-            </div>
 
-            {{-- Liste des tâches --}}
-            <div id="taches-container" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2">
-                {{-- Les tâches ajoutées dynamiquement apparaîtront ici --}}
-            </div>
+<div id="modal-taches" class="hidden fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+    <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-lg font-semibold mb-4">Rapport d'Intervention</h2>
 
-            {{-- Ajout d'une nouvelle tâche --}}
-            <div class="flex items-center gap-2 mb-4">
-                <input type="text" id="nouvelle-tache" 
-                    class="border rounded-lg px-4 py-2 w-full focus:ring focus:ring-green-200" 
-                    placeholder="Ajouter une nouvelle tâche...">
-                <button type="button" onclick="ajouterTache()" 
-                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                    Ajouter
-                </button>
-            </div>
+        <form id="formRapport">
+            <input type="hidden" id="intervention_id">
 
-            {{-- Boutons actions --}}
-            <div class="flex justify-between mt-6">
-                <button type="button" onclick="fermerModalTaches()" 
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
-                    Annuler
-                </button>
-                <button type="submit" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                    Enregistrer
-                </button>
+            <label for="contenu">Contenu du rapport :</label>
+            <textarea id="contenu" class="w-full p-2 border rounded mb-4" required></textarea>
+
+            <label for="nouvelle-tache">Ajouter une tâche :</label>
+            <input type="text" id="nouvelle-tache" class="w-full p-2 border rounded mb-2">
+            <button type="button" onclick="ajouterTache()" class="bg-blue-500 text-white p-2 rounded">Ajouter</button>
+
+            <div id="taches-container" class="mt-4"></div>
+
+            <div class="mt-4 flex justify-end">
+                <button type="button" onclick="fermerModalTaches()" class="mr-2 bg-gray-300 p-2 rounded">Annuler</button>
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded">Enregistrer</button>
             </div>
         </form>
-
-        {{-- Bouton de fermeture modal --}}
-        <button onclick="fermerModalTaches()" 
-            class="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-xl">
-            &times;
-        </button>
     </div>
 </div>
 
@@ -112,149 +131,98 @@
 
 
 <script>
-   let interventionId = null;
+    let interventionIdSelected = null;
+    let taches = [];
 
-function ouvrirModalTaches(id) {
-    interventionId = id;
-    document.getElementById('intervention_id').value = id;
-    document.getElementById('modal-taches').classList.remove('hidden');
+    function ouvrirModalTaches(interventionId) {
+        interventionIdSelected = interventionId;
+        document.getElementById('intervention_id').value = interventionId;
+        document.getElementById('contenu').value = ''; // Réinitialise le champ contenu
+        taches = [];
+        document.getElementById('taches-container').innerHTML = '';
 
-    console.log("Chargement des tâches pour intervention_id:", id);
+        // Charger le rapport et les tâches existantes
+        fetch(`/intervention/${interventionId}/rapport`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.rapport) {
+                        document.getElementById('contenu').value = data.rapport.contenu;
+                    }
+                    if (data.taches.length > 0) {
+                        data.taches.forEach(tache => {
+                            ajouterTacheHTML(tache.description);
+                            taches.push(tache.description);
+                        });
+                    }
+                }
+            });
 
-    fetch(`/get-taches?intervention_id=${id}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Réponse reçue:", data); 
-
-            let container = document.getElementById('taches-container');
-            container.innerHTML = '';
-            if (data.success && data.taches.length > 0) {
-                data.taches.forEach(tache => afficherTache(tache.description, tache.id)); // On passe l'id ici
-            } else {
-                container.innerHTML = '<p class="text-gray-500">Aucune tâche trouvée.</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Erreur AJAX:', error);
-            document.getElementById('taches-container').innerHTML = 
-                '<p class="text-red-500">Erreur lors du chargement des tâches.</p>';
-        });
-}
-
-function fermerModalTaches() {
-    document.getElementById('modal-taches').classList.add('hidden');
-}
-
-let compteurTaches = 0;
-
-function ajouterTache() {
-    let tacheInput = document.getElementById('nouvelle-tache');
-    let tacheTexte = tacheInput.value.trim();
-
-    if (tacheTexte !== "") {
-        compteurTaches++; 
-
-        let container = document.getElementById('taches-container');
-
-        let divTache = document.createElement('div');
-        divTache.classList.add('flex', 'justify-between', 'items-center', 'bg-gray-100', 'rounded-full', 'px-4', 'py-2', 'shadow', 'hover:bg-gray-200', 'transition', 'gap-2');
-
-        let labelTache = document.createElement('span');
-        labelTache.classList.add('bg-gray-500', 'text-white', 'rounded-full', 'px-3', 'py-1', 'text-sm', 'font-semibold');
-        labelTache.textContent = 'Tâche ' + compteurTaches;
-
-        let spanTache = document.createElement('span');
-        spanTache.classList.add('font-medium', 'text-gray-700', 'flex-1');
-        spanTache.textContent = tacheTexte;
-
-        let inputHidden = document.createElement('input');
-        inputHidden.type = 'hidden';
-        inputHidden.name = 'taches[]';
-        inputHidden.value = tacheTexte;
-
-        let btnSupprimer = document.createElement('button');
-        btnSupprimer.innerHTML = "❌";
-        btnSupprimer.classList.add('text-red-500', 'hover:text-red-700', 'text-lg');
-        btnSupprimer.onclick = function () {
-            container.removeChild(divTache);
-            reNumeroTaches(); 
-        };
-
-        divTache.appendChild(labelTache);
-        divTache.appendChild(spanTache);
-        divTache.appendChild(inputHidden);
-        divTache.appendChild(btnSupprimer);
-        container.appendChild(divTache);
-
-        tacheInput.value = "";
+        document.getElementById('modal-taches').classList.remove('hidden');
     }
-}
 
-function reNumeroTaches() {
-    let labels = document.querySelectorAll('#taches-container span.bg-gray-500');
-    compteurTaches = 0;
-    labels.forEach((label, index) => {
-        compteurTaches++;
-        label.textContent = 'Tâche ' + compteurTaches;
-    });
-}
+    function fermerModalTaches() {
+        document.getElementById('modal-taches').classList.add('hidden');
+    }
 
+    function ajouterTache() {
+        const input = document.getElementById('nouvelle-tache');
+        const description = input.value.trim();
+        if (description) {
+            taches.push(description);
+            ajouterTacheHTML(description);
+            input.value = '';
+        }
+    }
 
-function afficherTache(description, tache_id) {
-    let container = document.getElementById('taches-container');
+    function ajouterTacheHTML(description) {
+        const container = document.getElementById('taches-container');
+        const div = document.createElement('div');
+        div.className = "flex justify-between items-center bg-gray-100 p-2 rounded";
+        div.innerHTML = `
+            <span>${description}</span>
+            <button onclick="supprimerTache('${description}')" class="text-red-500 hover:text-red-700">Supprimer</button>
+        `;
+        container.appendChild(div);
+    }
 
-    let divTache = document.createElement('div');
-    divTache.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'border', 'rounded-lg', 'bg-gray-100', 'shadow');
+    function supprimerTache(description) {
+        taches = taches.filter(t => t !== description);
+        document.getElementById('taches-container').innerHTML = '';
+        taches.forEach(ajouterTacheHTML);
+    }
 
-    let spanTache = document.createElement('span');
-    spanTache.textContent = description;
+    document.getElementById('formRapport').addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    let inputHidden = document.createElement('input');
-    inputHidden.type = 'hidden';
-    inputHidden.name = 'taches[]';
-    inputHidden.value = description;
+        const contenu = document.getElementById('contenu').value.trim();
 
-    let btnSupprimer = document.createElement('button');
-    btnSupprimer.textContent = "❌";
-    btnSupprimer.classList.add('text-red-500', 'hover:text-red-700', 'text-sm');
-    btnSupprimer.onclick = function () {
-        supprimerTache(divTache, tache_id); // Appel de la fonction suppression
-    };
-
-    divTache.appendChild(spanTache);
-    divTache.appendChild(inputHidden);
-    divTache.appendChild(btnSupprimer);
-    container.appendChild(divTache);
-}
-
-
-function supprimerTache(tacheElement, tache_id) {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette tâche ?")) {
-
-        fetch(`/supprimer-tache/${tache_id}`, {
-            method: 'DELETE',
+        fetch("{{ route('rapports.storeOrUpdate') }}", {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                intervention_id: interventionIdSelected,
+                contenu: contenu,
+                taches: taches
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                tacheElement.remove(); 
-                console.log('Tâche supprimée avec succès');
+                alert(data.message);
+                fermerModalTaches();
+                location.reload();
             } else {
-                alert('Erreur lors de la suppression : ' + data.message);
+                alert('Erreur : ' + data.message);
             }
-        })
-        .catch(error => {
-            console.error('Erreur lors de la suppression:', error);
-            alert('Erreur de connexion. Veuillez réessayer.');
         });
-    }
-}
-
+    });
 </script>
+
+
 
 
 @endsection
