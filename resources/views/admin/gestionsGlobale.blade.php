@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
     <div class="py-6  h-full  ">
@@ -53,9 +53,8 @@
                     <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded">Inconnu</span>
                 @endif
             </td>
-            <td class="px-2 py-2 bg-gray-100 rounded">
-                {{ $user->service ? $user->service->name : 'Non attribué' }}
-            </td>
+            <td>{{ $user->service->parentService->name ?? 'No Parent' }}</td>
+
             <td class="border px-4 py-2">
                 @if($user->status == 1)
                     <span class="px-2 py-1 bg-green-100 text-green-800 rounded">Actif</span>

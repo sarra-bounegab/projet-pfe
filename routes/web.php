@@ -372,4 +372,8 @@ Route::get('/intervention/{id}/rapport', [InterventionController::class, 'showRa
 
 Route::get('/intervention/{id}/rapport', [InterventionController::class, 'getRapport'])->name('intervention.rapport');
 
+
+
+Route::get('/admin/gestion-globale', [AdminController::class, 'gestionGlobale'])->name('admin.gestionGlobale');
+
 require __DIR__.'/auth.php';

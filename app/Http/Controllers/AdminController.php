@@ -14,19 +14,17 @@ class AdminController extends Controller
 
     // Show the list of users
     public function gestionUsers()
-    {
-        $users = User::where('profile_id', 3)->get();
-        return view('admin.gestionUsers', compact('users'));
+{
+    $users = User::where('profile_id', 3)->with('service')->get(); 
+    return view('admin.gestionUsers', compact('users'));
+}
+
    
-    $users = User::with('service')->get();
-    return view('admin.users.index', compact('users'));
-     }
-    // Show the list of technicians
   
 
     public function listTechnicians()
     {
-        $technicians = User::where('profile_id', 2)->get(); // Récupère les utilisateurs ayant profile_id = 2
+        $technicians = User::where('profile_id', 2)->get(); 
         return view('admin.technicians', compact('technicians'));
     }
 
@@ -34,9 +32,10 @@ class AdminController extends Controller
 
     public function create()
     {
-        $services = Service::all(); // Retrieve all services
-        return view('admin.users.create', compact('services'));
+        $services = Service::all(); // Récupérer tous les services
+    return view('admin.gestionsGlobale', compact('services'));
     }
+    
     
     
     
