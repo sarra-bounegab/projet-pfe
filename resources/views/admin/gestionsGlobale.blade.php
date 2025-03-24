@@ -7,10 +7,7 @@
                 
                 <h2 class="text-2xl font-semibold mb-4">Gestion Globale des Utilisateurs globale</h2>
 
-
-                <button onclick="openModal()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
-    + Ajouter un utilisateur
-</button>
+                <button onclick="openModal()" class="px-4 py-2 bg-green-500 text-white rounded">Ajouter un utilisateur</button>
 
 
 
@@ -53,7 +50,8 @@
                     <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded">Inconnu</span>
                 @endif
             </td>
-            <td>{{ $user->service->parentService->name ?? 'No Parent' }}</td>
+            <td>{{ $user->service?->parentService?->name ?? $user->service?->name ?? 'No Parent' }}</td>
+
 
             <td class="border px-4 py-2">
                 @if($user->status == 1)
@@ -83,20 +81,33 @@
 
 
 
-
     <div id="editUserModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-lg font-semibold mb-4">Modifier l'utilisateur</h2>
         <form id="editUserForm" method="POST">
             @csrf
             @method('PUT')
             <input type="hidden" id="edit_user_id" name="id">
+
+            <label class="block text-sm font-medium">Nom</label>
             <input type="text" id="edit_user_name" name="name" class="border p-2 w-full mb-2" required>
+
+            <label class="block text-sm font-medium">Email</label>
             <input type="email" id="edit_user_email" name="email" class="border p-2 w-full mb-2" required>
+
+            <label class="block text-sm font-medium">Statut</label>
             <select id="edit_user_status" name="status" class="border p-2 w-full mb-2">
                 <option value="1">Actif</option>
                 <option value="0">Inactif</option>
             </select>
+
+            <label class="block text-sm font-medium">Profil</label>
+            <select id="edit_user_profile" name="profile_id" class="border p-2 w-full mb-4">
+                <option value="1">Administrateur</option>
+                <option value="2">Technicien</option>
+                <option value="3">Employé</option>
+            </select>
+
             <div class="flex justify-end">
                 <button type="button" onclick="closeEditUserModal()" class="mr-2 text-gray-600">Annuler</button>
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Modifier</button>
@@ -105,25 +116,42 @@
     </div>
 </div>
 
-
-
 <script>
-    function openEditUserModal(id, name, email, status) {
-      
+    document.getElementById('editUserForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Empêche le rechargement de la page
+
+        let form = this;
+        let formData = new FormData(form);
+        let userId = document.getElementById('edit_user_id').value;
+
+        fetch(`/users/${userId}`, {
+            method: 'POST', // Laravel attend PUT, donc on ajoute un _method
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Utilisateur mis à jour avec succès !');
+            closeEditUserModal();
+            location.reload(); // Rafraîchir la liste des utilisateurs
+        })
+        .catch(error => console.error('Erreur :', error));
+    });
+
+    function openEditUserModal(id, name, email, status, profile_id) {
         document.getElementById('edit_user_id').value = id;
         document.getElementById('edit_user_name').value = name;
         document.getElementById('edit_user_email').value = email;
         document.getElementById('edit_user_status').value = status;
+        document.getElementById('edit_user_profile').value = profile_id;
 
-   
-        document.getElementById('editUserForm').action = '/users/' + id;
-
-        
         document.getElementById('editUserModal').classList.remove('hidden');
     }
 
     function closeEditUserModal() {
-       
         document.getElementById('editUserModal').classList.add('hidden');
     }
 </script>
@@ -136,10 +164,30 @@
 
 
 
-<!-- Fenêtre modale cachée par défaut -->
+
+<!-- MODAL AJOUT UTILISATEUR -->
 <div id="userModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
     <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 class="text-xl font-semibold mb-4">Ajouter un nouvel utilisateur</h2>
+
+        <!-- Message de succès -->
+        @if(session('success'))
+            <div class="bg-green-100 text-green-700 p-2 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Affichage des erreurs -->
+        @if ($errors->any())
+            <div class="bg-red-100 text-red-700 p-2 rounded mb-4">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('users.store') }}" method="POST">
             @csrf
             <div class="mb-4">
@@ -162,7 +210,6 @@
                     <option value="3">Utilisateur</option>
                 </select>
             </div>
-
             <div class="mb-4">
                 <label class="block text-sm font-medium">Statut</label>
                 <select name="status" class="w-full border rounded p-2">
@@ -170,6 +217,31 @@
                     <option value="0">Inactif</option>
                 </select>
             </div>
+            <div class="mb-4">
+    <label class="block text-sm font-medium">Service</label>
+    <select name="service_id" class="w-full border rounded p-2">
+    <option value="" disabled selected>-- Sélectionner un service --</option>
+
+    @foreach($parentServices as $parent)
+        <optgroup label="{{ $parent->name }}">
+            @foreach($parent->subServicesRecursive as $division)
+                <optgroup label="➡ {{ $division->name }}">
+                    @foreach($division->subServicesRecursive as $service)
+                        <option value="{{ $service->id }}">-- {{ $service->name }}</option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </optgroup>
+    @endforeach
+</select>
+
+
+
+
+
+</div>
+
+
             <div class="flex justify-end">
                 <button type="button" onclick="closeModal()" class="mr-2 px-4 py-2 bg-gray-400 text-white rounded">Annuler</button>
                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Créer</button>
@@ -177,6 +249,7 @@
         </form>
     </div>
 </div>
+
 
 
 
@@ -189,6 +262,7 @@
         document.getElementById('userModal').classList.add('hidden');
     }
 </script>
+
 
 
 
@@ -209,10 +283,5 @@
         });
     });
 </script>
-
-
-
-
-
 
 @endsection 

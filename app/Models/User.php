@@ -21,11 +21,9 @@ class User extends Authenticatable
         'profile_id' => 3,  // Default value for profile_id
     ];
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'profile_id',
+        'name', 'email', 'password', 'profile_id', 'service_id', 'status'
     ];
+    
 
     /**
      * The attributes that should be hidden for serialization.

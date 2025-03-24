@@ -43,8 +43,9 @@
     $(document).ready(function() {
         $('#example').DataTable({
             responsive: true,
-            dom: 'Bfrtip', // Active les boutons
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'] // Boutons d'export
+            dom: 'Bfrtip', /
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'] 
+            
         });
     });
 </script>
@@ -58,11 +59,7 @@
             </a>
         </div>
             <ul class="flex-grow p-4 space-y-2">
-                <li>
-                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                         Accueil
-                    </a>
-                </li>
+            
                 @if(auth()->user()->profile_id == 1) 
                     <li>
                         <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
@@ -79,13 +76,23 @@
                              Gestion Interventions
                         </a>
                     </li>
-                @elseif(auth()->user()->profile_id == 2) <!-- Technicien -->
+                @elseif(auth()->user()->profile_id == 2) 
                     <li>
                         <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                             Gestion Interventions
+                             Gestion Interventions  
                         </a>
                     </li>
-                @elseif(auth()->user()->profile_id == 3) <!-- Utilisateur -->
+                    <li>
+                        <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                             Mes interventions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('user.gestionsinterventions.create') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                             Ajouter Intervention
+                        </a>
+                    </li>
+                @elseif(auth()->user()->profile_id == 3) 
                     <li>
                         <a href="{{ route('user.statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Mes Statistiques
@@ -93,7 +100,7 @@
                     </li>
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                             Gestion Interventions
+                             Mes interventions
                         </a>
                     </li>
                     <li>

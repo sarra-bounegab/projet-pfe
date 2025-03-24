@@ -50,6 +50,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Routes après connexion, accessibles uniquement aux utilisateurs authentifiés
 Route::middleware(['auth', CheckUserStatus::class])->group(function () {
     // Tableau de bord pour les utilisateurs connectés
@@ -252,6 +264,7 @@ Route::put('/intervention/cancel', [InterventionController::class, 'cancelTechni
 
 
 
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/technician/interventions', [TechnicianController::class, 'gestionInterventions'])
          ->name('technician.interventions');
@@ -375,5 +388,23 @@ Route::get('/intervention/{id}/rapport', [InterventionController::class, 'getRap
 
 
 Route::get('/admin/gestion-globale', [AdminController::class, 'gestionGlobale'])->name('admin.gestionGlobale');
+
+
+Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
+Route::get('/admin/gestion-globale', [UserController::class, 'index'])->name('admin.gestionGlobale');
+
+
+
+Route::get('/admin/gestions-globale', [UserController::class, 'gestionsGlobale'])->name('admin.gestionsGlobale');
+
+Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+
+
+
+
+
+Route::post('/update-historique/{id}', [InterventionController::class, 'updateHistorique']);
+
 
 require __DIR__.'/auth.php';

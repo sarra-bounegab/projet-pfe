@@ -16,11 +16,15 @@ class UserController extends Controller
   
     public function index()
     {
-        
-        $users = User::all(); // Récupère tous les utilisateurs
-        return view('admin.gestionsglobale', compact('users'));
-
+        $users = User::all();
+        $services = Service::all();
+        $parentServices = Service::whereNull('parent_id')->with('subServices')->get();
+    
+        return view('admin.gestionsGlobale', compact('users', 'services', 'parentServices'));
     }
+    
+    
+
 
    public function create()
    {
@@ -30,49 +34,75 @@ class UserController extends Controller
    
     
 
-    public function gestionsGlobale()
-    {
-        // Récupère tous les utilisateurs et techniciens
-        $users = User::whereIn('profile_id', [1, 2, 3])->get();
-        return view('admin.gestionsGlobale', compact('users'));
-    }
+   public function gestionsGlobale()
+   {
+       $users = User::whereIn('profile_id', [1, 2, 3])->get();
+       $services = Service::all();
+       $parentServices = Service::whereNull('parent_id')->with('subServicesRecursive')->get();
+       
+       return view('admin.gestionsGlobale', compact('users', 'services', 'parentServices'));
+   }
+   
 
-    public function update(Request $request, $id)
+   public function show($id)
+   {
+       $user = User::findOrFail($id);
+       return view('admin.user.show', compact('user'));
+   }
+   
+  
+   
+    public function store(Request $request)
     {
-        $user = User::findOrFail($id);
-        $user->update($request->only(['name', 'email']));
-        
-        return redirect()->route('users.index')->with('success', 'Utilisateur mis à jour avec succès.');
+        // Validation des données
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'profile_id' => 'required|integer',
+            'status' => 'required|boolean',
+            'service_id' => 'required|integer|exists:services,id',
+        ]);
+    
+        // Création de l'utilisateur
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'profile_id' => $request->profile_id,
+            'status' => $request->status,
+            'service_id' => $request->service_id,
+        ]);
+    
+        // Redirection avec message de succès
+        return redirect()->back()->with('success', 'Utilisateur créé avec succès.');
     }
     
 
-
-public function store(Request $request)
+    public function update(Request $request, $id)
 {
+    // Validation des champs
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|string|min:6',
+        'email' => 'required|email',
+        'status' => 'required|boolean',
         'profile_id' => 'required|integer',
-       'service_id' => 'nullable|integer', //
-        'status' => 'required|integer',
     ]);
 
-    User::create([
+    // Trouver l'utilisateur et mettre à jour
+    $user = User::findOrFail($id);
+    $user->update([
         'name' => $request->name,
         'email' => $request->email,
-        'password' => Hash::make($request->password), // Hash du mot de passe
-        'profile_id' => $request->profile_id,
-        'service_id' => $request->service_id,
         'status' => $request->status,
+        'profile_id' => $request->profile_id,
     ]);
 
-    return redirect()->back()->with('success', 'Utilisateur créé avec succès.');
+    return response()->json(['success' => 'Utilisateur mis à jour avec succès.']);
 }
 
+    
 
-
-
-
+  
 
 }

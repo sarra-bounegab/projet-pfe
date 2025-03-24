@@ -54,6 +54,10 @@ public function intervention()
     return $this->belongsTo(Intervention::class);
 }
 
+public function historiqueAttributions()
+{
+    return $this->hasMany(HistoriqueAttribution::class, 'intervention_id');
+}
 
 
 }

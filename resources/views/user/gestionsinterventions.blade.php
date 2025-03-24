@@ -75,7 +75,7 @@
                 <div><strong>ID Rapport:</strong> <span id="rapportId"></span></div>
                 <div><strong>Intervention:</strong> <span id="interventionId"></span></div>
                 <div><strong>Date de traitement:</strong> <span id="dateTraitement"></span></div>
-                <div><strong>Technicien:</strong> <span id="technicienNom" class="text-blue-600"></span></div>
+                <div><strong>Technicien:</strong> <span id="technicienNom" class="text-black-600"></span></div>
                 <div class="bg-gray-100 p-3 rounded-md">
                     <strong>Contenu :</strong>
                     <p id="rapportContenu" class="mt-1"></p>
@@ -130,7 +130,7 @@
                         if (data.taches && data.taches.length > 0) {
                             data.taches.forEach(tache => {
                                 let li = document.createElement('li');
-                                li.className = "bg-blue-100 px-3 py-2 rounded-md text-blue-800 font-medium";
+                                li.className = "bg-green-100 px-3 py-2 rounded-md text-black-800 font-medium";
                                 li.textContent = tache;
                                 listeTaches.appendChild(li);
                             });

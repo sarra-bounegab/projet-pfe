@@ -13,7 +13,9 @@ class RegisteredUserController extends Controller
     public function create()
     {
         $services = Service::all(); // Retrieve all services from the database
-        return view('auth.register', compact('services'));
+        // Récupère les services parents avec leurs sous-services
+       $parentServices = Service::whereNull('parent_id')->with('subServicesRecursive')->get();
+        return view('auth.register', compact('services','parentServices'));
     }
 
     public function store(Request $request)

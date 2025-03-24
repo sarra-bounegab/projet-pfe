@@ -19,12 +19,22 @@
         <!-- Service Selection -->
         <div class="mt-4">
             <x-input-label for="service_id" :value="__('Select Service')" />
-            <select id="service_id" name="service_id" required class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                <option value="">-- Choose a Service --</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}">{{ $service->name }}</option>
-                @endforeach
-            </select>
+            <select name="service_id" class="w-full border rounded p-2">
+    <option value="" disabled selected>-- Sélectionner un service --</option>
+
+    @foreach($parentServices as $parent)
+        <optgroup label="{{ $parent->name }}">
+            @foreach($parent->subServicesRecursive as $division)
+                <optgroup label="➡ {{ $division->name }}">
+                    @foreach($division->subServicesRecursive as $service)
+                        <option value="{{ $service->id }}">-- {{ $service->name }}</option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </optgroup>
+    @endforeach
+</select>
+
             <x-input-error :messages="$errors->get('service_id')" class="mt-2" />
         </div>
 

@@ -9,7 +9,8 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'parent_id'];
+    protected $fillable = ['name', 'parent_id']; 
+
 
     public function users()
     {
@@ -25,4 +26,10 @@ class Service extends Model
     {
         return $this->belongsTo(Service::class, 'parent_id');
     }
+    public function subServicesRecursive()
+    {
+        return $this->hasMany(Service::class, 'parent_id')->with('subServicesRecursive');
+    }
+    
+    
 }
