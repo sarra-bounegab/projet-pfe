@@ -407,4 +407,24 @@ Route::put('/users/{user}', [UserController::class, 'update'])->name('users.upda
 Route::post('/update-historique/{id}', [InterventionController::class, 'updateHistorique']);
 
 
+
+
+use App\Http\Controllers\HistoriqueController;
+
+
+
+Route::get('/historique', [HistoriqueController::class, 'index'])->name('historique')->middleware('auth');
+
+
+
+
+
+Route::get('/intervention/{id}', [InterventionController::class, 'showInterventionDetails'])
+    ->middleware('auth');
+
+    Route::get('/historique', [InterventionController::class, 'showHistorique'])->name('historique');
+
+// Route pour l'historique
+Route::get('/historique', [HistoriqueController::class, 'showHistorique'])->name('historique');
+
 require __DIR__.'/auth.php';

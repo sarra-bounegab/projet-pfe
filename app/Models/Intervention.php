@@ -18,14 +18,12 @@ class Intervention extends Model
         'status',
     ];
     
-    
-    // Relation avec l'utilisateur
+   
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relation avec le type d'intervention
     public function typeIntervention()
     {
         return $this->belongsTo(TypeIntervention::class);

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TypeIntervention;
 use App\Models\Rapport;
 
+
 class InterventionController extends Controller
 {
     public function index()
@@ -209,6 +210,12 @@ public function getRapport($interventionId)
         'taches' => $rapport->taches->pluck('description'),
     ]);
 }
+
+
+
+
+
+
 
 
 }

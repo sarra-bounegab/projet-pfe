@@ -101,7 +101,6 @@ class UserController extends Controller
     return response()->json(['success' => 'Utilisateur mis à jour avec succès.']);
 }
 
-    
 
   
 
