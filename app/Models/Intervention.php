@@ -17,8 +17,8 @@ class Intervention extends Model
         'technicien_id', // Assurez-vous que cette colonne est bien dans $fillable
         'status',
     ];
-    
-    
+
+
     // Relation avec l'utilisateur
     public function user()
     {
@@ -47,7 +47,7 @@ public function rapport()
         $interventions = Intervention::all(); // Ou filtrer selon l'utilisateur
         return view('intervention.index', compact('interventions'));
     }
-    
+
 // Relation avec l'intervention
 public function intervention()
 {
@@ -58,9 +58,13 @@ public function historiqueAttributions()
 {
     return $this->hasMany(HistoriqueAttribution::class, 'intervention_id');
 }
+public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 
 
 }
-    
+
 
 

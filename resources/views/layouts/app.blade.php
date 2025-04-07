@@ -38,14 +38,16 @@
 <!-- Bootstrap 5 DataTables JS (si besoin) -->
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <!-- Initialisation DataTables -->
 <script>
     $(document).ready(function() {
         $('#example').DataTable({
             responsive: true,
             dom: 'Bfrtip', /
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'] 
-            
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+
         });
     });
 </script>
@@ -59,8 +61,8 @@
             </a>
         </div>
             <ul class="flex-grow p-4 space-y-2">
-            
-                @if(auth()->user()->profile_id == 1) 
+
+                @if(auth()->user()->profile_id == 1)
                     <li>
                         <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Statistiques
@@ -76,10 +78,10 @@
                              Gestion Interventions
                         </a>
                     </li>
-                @elseif(auth()->user()->profile_id == 2) 
+                @elseif(auth()->user()->profile_id == 2)
                     <li>
                         <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                             Gestion Interventions  
+                             Gestion Interventions
                         </a>
                     </li>
                     <li>
@@ -92,7 +94,7 @@
                              Ajouter Intervention
                         </a>
                     </li>
-                @elseif(auth()->user()->profile_id == 3) 
+                @elseif(auth()->user()->profile_id == 3)
                     <li>
                         <a href="{{ route('user.statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Mes Statistiques
