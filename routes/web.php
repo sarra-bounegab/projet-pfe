@@ -419,4 +419,24 @@ Route::get('/stats/service-distribution', [StatisticsController::class, 'getServ
 
 
 
+
+
+use App\Http\Controllers\HistoriqueController;
+
+
+
+Route::get('/historique', [HistoriqueController::class, 'index'])->name('historique')->middleware('auth');
+
+
+
+
+
+Route::get('/intervention/{id}', [InterventionController::class, 'showInterventionDetails'])
+    ->middleware('auth');
+
+    Route::get('/historique', [InterventionController::class, 'showHistorique'])->name('historique');
+
+// Route pour l'historique
+Route::get('/historique', [HistoriqueController::class, 'showHistorique'])->name('historique');
+
 require __DIR__.'/auth.php';

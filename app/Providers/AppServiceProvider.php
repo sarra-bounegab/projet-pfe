@@ -3,21 +3,17 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Intervention;
+use App\Observers\InterventionObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function boot()
     {
-        //
+        Intervention::observe(InterventionObserver::class); // Enregistrement de l'observateur
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function register()
     {
         //
     }

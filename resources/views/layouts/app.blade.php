@@ -73,6 +73,15 @@
                              Gestion Utilisateurs
                         </a>
                     </li>
+                    <li >
+                         <a href="{{ route('historique') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                          historique
+                         </a>
+                        
+                    <li>
+
+
+
                     <li>
                         <a href="{{ route('admin.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Gestion Interventions
@@ -89,6 +98,11 @@
                              Mes interventions
                         </a>
                     </li>
+                    <li >
+                         <a href="{{ route('historique') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                          historique
+                         </a>
+                        
                     <li>
                         <a href="{{ route('user.gestionsinterventions.create') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Ajouter Intervention
@@ -105,6 +119,12 @@
                              Mes interventions
                         </a>
                     </li>
+                    <li >
+                         <a href="{{ route('historique') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                          historique
+                         </a>
+                        
+                    <li>
                     <li>
                         <a href="{{ route('user.gestionsinterventions.create') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                              Ajouter Intervention
