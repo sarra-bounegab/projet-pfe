@@ -75,7 +75,7 @@ Route::middleware(['auth', CheckUserStatus::class])->group(function () {
             return view('technician.dashboard');  // Technician Dashboard
         }
 
-       
+
         return view('user.dashboard');  // User Dashboard (Default for all normal users)
     })->name('dashboard');
 
@@ -132,7 +132,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 });
 
 
-//partie gestions 
+//partie gestions
 use App\Http\Controllers\Admin\UserController;
 
 // Route pour accéder à la gestion des utilisateurs
@@ -181,7 +181,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-// Routes statistique 
+// Routes statistique
 use App\Http\Controllers\StatisticsController;
 
 Route::get('/admin/statistics', [StatisticsController::class, 'index'])->name('statistics')->middleware('auth');
@@ -407,6 +407,18 @@ Route::put('/users/{user}', [UserController::class, 'update'])->name('users.upda
 
 
 Route::post('/update-historique/{id}', [InterventionController::class, 'updateHistorique']);
+
+Route::get('/stats/interventions', [StatisticsController::class, 'getInterventionsByService']);
+
+
+Route::get('/stats/service-distribution', [StatisticsController::class, 'getServiceDistribution'])->name('stats.serviceDistribution');
+
+
+
+
+
+
+
 
 
 

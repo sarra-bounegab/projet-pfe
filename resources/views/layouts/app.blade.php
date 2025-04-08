@@ -46,14 +46,16 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <!-- Initialisation DataTables -->
 <script>
     $(document).ready(function() {
         $('#example').DataTable({
             responsive: true,
             dom: 'Bfrtip', /
-            buttons: ['copy', 'csv', 'excel', 'pdf', 'print'] 
-            
+            buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+
         });
     });
 </script>
@@ -67,6 +69,7 @@
             </a>
         </div>
             <ul class="flex-grow p-4 space-y-2">
+<<<<<<< HEAD
             
                 @if(auth()->user()->profile_id == 1 || auth()->user()->profile_id == 4) 
                 <li>
@@ -108,6 +111,10 @@
         Statistique
     </a>
 </li>
+=======
+
+                @if(auth()->user()->profile_id == 1)
+>>>>>>> aff09a105963a7c564c48b3ccc75ff77b55885f0
                     <li>
                         <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                         <i class="fa-solid fa-tools mr-2" ></i>
@@ -117,7 +124,23 @@
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                         
+<<<<<<< HEAD
                         <i class="fa-solid fa-tools mr-2" ></i> Mes interventions
+=======
+                    <li>
+
+
+
+                    <li>
+                        <a href="{{ route('admin.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                             Gestion Interventions
+                        </a>
+                    </li>
+                @elseif(auth()->user()->profile_id == 2)
+                    <li>
+                        <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                             Gestion Interventions
+>>>>>>> aff09a105963a7c564c48b3ccc75ff77b55885f0
                         </a>
                     </li>
                     <li>
@@ -133,6 +156,7 @@
                         Ajouter Intervention
                         </a>
                     </li>
+<<<<<<< HEAD
                 @elseif(auth()->user()->profile_id == 3) 
                 <li>
     <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
@@ -141,6 +165,9 @@
 </li>
 
 
+=======
+                @elseif(auth()->user()->profile_id == 3)
+>>>>>>> aff09a105963a7c564c48b3ccc75ff77b55885f0
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                         

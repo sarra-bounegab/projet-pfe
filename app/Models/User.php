@@ -23,7 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'profile_id', 'service_id', 'status'
     ];
-    
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,8 +55,14 @@ class User extends Authenticatable
 
 public function service()
 {
-    return $this->belongsTo(Service::class, 'service_id');
+    return $this->belongsTo(Service::class);
 }
+
+public function interventions()
+{
+    return $this->hasMany(Intervention::class);
+}
+
 
 
 }
