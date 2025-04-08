@@ -166,6 +166,10 @@
             </div>
         </div>
 
+
+
+
+
         <!-- Section des détails du rapport -->
         <div id="rapportSection" class="mt-6 space-y-4 hidden border-t pt-4">
             <h3 class="font-semibold text-lg text-gray-800 mb-3"></h3>
@@ -203,6 +207,10 @@
             </div>
         </div>
 
+
+
+
+
         <div class="flex justify-center mt-6">
             <button type="button" onclick="closeInterventionDetailsModal()" 
                     class="px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition">
@@ -216,9 +224,13 @@
     </div>
 </div>
 
+
+
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialiser DataTables si nécessaire
+
         if (document.getElementById('interventionsTable')) {
             $('#interventionsTable').DataTable({
                 "language": {
@@ -566,7 +578,6 @@
             </html>
         `);
 
-        // Impression après chargement
         printWindow.document.close();
         printWindow.onload = function () {
             printWindow.focus();

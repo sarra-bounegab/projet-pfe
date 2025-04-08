@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Historique;
 
 use App\Models\User; 
 use App\Models\Intervention;
@@ -80,6 +81,29 @@ class InterventionController extends Controller
 
         return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention mise à jour.');
     }
+
+    public function show($id)
+{
+    $intervention = Intervention::with(['rapport', 'taches', 'historiques.user'])->findOrFail($id);
+    
+    // Récupérer les événements de réouverture dans l'ordre chronologique
+    $reouvertures = $intervention->historiques()
+        ->where('action', 'Intervention réouverte')
+        ->orderBy('created_at', 'asc')
+        ->get();
+    
+    // Ajouter la date de clôture initiale si disponible
+    $clotures = $intervention->historiques()
+        ->where('action', 'Intervention clôturée')
+        ->orderBy('created_at', 'asc')
+        ->get();
+    
+    return view('interventions.show', compact('intervention', 'reouvertures', 'clotures'));
+}
+
+
+    
+
 
     public function destroy($id)
     {
@@ -161,6 +185,14 @@ public function cloturer($id)
     return redirect()->back()->with('info', 'Cette intervention est déjà terminée.');
 }
 
+
+
+
+
+
+
+
+
 public function showRapport($id)
 {
     $intervention = Intervention::findOrFail($id);
@@ -191,6 +223,27 @@ public function showRapport($id)
         })
     ]);
 }
+public function reouvrir($id)
+{
+    $intervention = Intervention::findOrFail($id);
+    if ($intervention->status === 'Terminé') {
+        // Met à jour le statut et la date
+        $intervention->status = 'En cours';
+        $intervention->updated_at = now();
+        $intervention->save();
+
+        // Optionnel : enregistrer un historique si tu en as un
+        Historique::create([
+            'intervention_id' => $intervention->id,
+            'user_id' => auth()->id(),
+            'action' => 'Réouverture',
+            'created_at' => now()
+        ]);
+    }
+
+    return redirect()->back()->with('success', 'Intervention réouverte avec succès.');
+}
+
 
 
 public function getRapport($interventionId)

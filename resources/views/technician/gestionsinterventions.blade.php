@@ -1,4 +1,4 @@
-@extends('layouts.technicien')
+@extends('layouts.app')
 
 @section('content')
 <div class="bg-white shadow-md sm:rounded-lg p-6">
@@ -41,38 +41,42 @@
                             @endif
                         </td>
                         
-<td class="border px-4 py-2 text-center space-y-2">
+                        <td class="border px-4 py-2 text-center space-y-2">
 
 <button onclick="openInterventionDetailsModal('{{ $intervention->id }}', '{{ $intervention->user->name }}', '{{ $intervention->titre }}', '{{ $intervention->description }}', '{{ $intervention->created_at->format('d/m/Y') }}', '{{ $intervention->typeIntervention ? $intervention->typeIntervention->type : 'Non défini' }}', '{{ $intervention->status }}')" class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600">
-                            Fiche interventions
-                        </button>
+    Fiche interventions
+</button>
 
-
-
-<!-- Les deux boutons suivants ne s'affichent que si l'intervention N'est PAS terminée -->
 @if ($intervention->status !== 'Terminé')
-   <button 
-                            onclick="ouvrirModalTaches({{ $intervention->id }})"
-                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                            id="btn-ajouter-rapport-{{ $intervention->id }}"
-                        >
-                            {{ $intervention->status === 'Terminé' ? 'voir details' : 'Ajouter details ' }}
-                        </button>
+    <button 
+        onclick="ouvrirModalTaches({{ $intervention->id }})"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+        id="btn-ajouter-rapport-{{ $intervention->id }}"
+    >
+        Ajouter détails
+    </button>
+
+    <form action="{{ route('intervention.cloturer', $intervention->id) }}" method="POST" style="display: inline;">
+        @csrf
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" onclick="return confirm('Voulez-vous vraiment clôturer cette intervention ?')">
+            Clôturer
+        </button>
+    </form>
+
+@else
+<form action="{{ route('intervention.reouvrir', $intervention->id) }}" method="POST" style="display: inline;">
+    @csrf
+    <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition" onclick="return confirm('Voulez-vous vraiment réouvrir cette intervention ?')">
+        Réouvrir
+    </button>
+</form>
 
 
-
-     @if ($intervention->status !== 'Terminé')
-                            <form action="{{ route('intervention.cloturer', $intervention->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" onclick="return confirm('Voulez-vous vraiment clôturer cette intervention ?')">
-                                    Clôturer
-                                </button>
-                            </form>
-                        @endif
 
 @endif
 
 </td>
+
 
 
 
@@ -83,15 +87,22 @@
     </div>
 </div>
 
-                                {{-- Modal pour afficher ou ajouter un rapport --}}
+{{-- Modal pour afficher ou ajouter un rapport --}}
 <div id="modal-taches" class="hidden fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
     <div class="bg-white p-6 rounded shadow-lg w-96 max-h-[90vh] overflow-y-auto">
-        <h2 class="text-lg font-semibold mb-4">Details  d'Intervention</h2>
+        <h2 class="text-lg font-semibold mb-4">Détails de l'Intervention</h2>
+
+        {{-- Rapport précédent (lecture seule) --}}
+        <div id="rapport-precedent" class="mb-6 p-4 bg-gray-100 border rounded hidden">
+            <h3 class="text-md font-semibold mb-2 text-gray-700">Rapport précédent</h3>
+            <p id="ancien-contenu" class="text-sm text-gray-800 whitespace-pre-wrap"></p>
+            <p id="ancienne-date" class="text-xs text-gray-500 mt-2 italic"></p>
+        </div>
 
         <form id="formRapport">
             <input type="hidden" id="intervention_id">
 
-            <label for="contenu">Probleme posé :</label>
+            <label for="contenu">Problème posé :</label>
             <textarea id="contenu" class="w-full p-2 border rounded mb-4" required></textarea>
 
             <label for="nouvelle-tache">Ajouter une tâche :</label>
@@ -109,6 +120,7 @@
         </form>
     </div>
 </div>
+
 
 
 
@@ -603,6 +615,21 @@
     function closeInterventionDetailsModal() {
         document.getElementById('interventionDetailsModal').classList.add('hidden');
     }
+
+    function remplirRapportPrecedent(contenu, updatedAt) {
+    const rapportDiv = document.getElementById("rapport-precedent");
+
+    if (contenu) {
+        document.getElementById("ancien-contenu").textContent = contenu;
+        document.getElementById("ancienne-date").textContent = `Dernière modification : ${updatedAt}`;
+        rapportDiv.classList.remove("hidden");
+    } else {
+        rapportDiv.classList.add("hidden");
+    }
+}
+
+
+    
 </script>
 
 
