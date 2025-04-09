@@ -6,7 +6,7 @@ use App\Models\Service;
 use App\Models\Intervention;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Intervention;
+
 
 class StatisticsController extends Controller
 {

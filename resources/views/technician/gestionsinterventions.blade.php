@@ -144,116 +144,166 @@
 
             <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Détails de l'intervention</h2>
 
-            <!-- Section des détails de l'intervention -->
-            <div class="space-y-4 text-sm text-gray-700">
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">ID:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_id"></span>
-                    </div>
-                </div>
+        <!-- Section des détails de l'intervention -->
+<div class="space-y-4 text-sm text-gray-700">
+    <!-- ID de l'intervention -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">ID:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_id">{{ $intervention->id }}</span>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Utilisateur:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_user"></span>
-                    </div>
-                </div>
+    <!-- Utilisateur -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">Utilisateur:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_user">{{ $intervention->user->name }}</span>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Titre:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_titre"></span>
-                    </div>
-                </div>
+    <!-- Titre de l'intervention -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">Titre:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_titre">{{ $intervention->titre }}</span>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Date de création:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_creation_date"></span>
-                    </div>
-                </div>
+    <!-- Date de création -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">Date de création:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_creation_date">{{ $intervention->created_at->format('d/m/Y H:i') }}</span>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Type:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_type"></span>
-                    </div>
-                </div>
+    <!-- Type d'intervention -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">Type:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_type">{{ $intervention->type }}</span>
+        </div>
+    </div>
 
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Statut:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_status" class="px-3 py-1 text-sm font-semibold rounded-md"></span>
-                    </div>
-                </div>
+    <!-- Statut de l'intervention -->
+    <div class="grid grid-cols-4 gap-2">
+        <div class="col-span-1">
+            <span class="font-medium text-gray-900">Statut:</span>
+        </div>
+        <div class="col-span-3">
+            <span id="detail_intervention_status" class="px-3 py-1 text-sm font-semibold rounded-md {{ $intervention->status == 'terminée' ? 'bg-green-200' : 'bg-yellow-200' }}">
+                {{ ucfirst($intervention->status) }}
+            </span>
+        </div>
+    </div>
 
-                <div class="bg-gray-50 p-4 rounded-lg text-gray-800 border border-gray-200">
-                    <strong class="block mb-2 text-gray-900">Description :</strong>
-                    <p id="detail_intervention_description" class="mt-2 text-gray-700 whitespace-pre-line"></p>
-                </div>
-            </div>
+    <!-- Description de l'intervention -->
+    <div class="bg-gray-50 p-4 rounded-lg text-gray-800 border border-gray-200">
+        <strong class="block mb-2 text-gray-900">Description :</strong>
+        <p id="detail_intervention_description" class="mt-2 text-gray-700 whitespace-pre-line">{{ $intervention->description }}</p>
+    </div>
 
-            <!-- Section des détails du rapport (visible seulement si l'intervention est terminée) -->
-            <div id="rapportSection" class="mt-6 space-y-4 hidden border-t pt-4">
-                <h3 class="font-semibold text-lg text-gray-800 mb-3"></h3>
+    <!-- Affichage de la date de réouverture si disponible -->
+    @if(isset($lastReouverture))
+        <div class="mt-4">
+            <strong class="block text-gray-900">Réouverture :</strong>
+            <span class="text-sm text-gray-700">{{ $lastReouverture->created_at->format('d/m/Y H:i') }}</span>
+        </div>
+    @endif
+</div>
+<!-- Section des détails du rapport (visible seulement si l'intervention est terminée) -->
+<div id="rapportSection" class="mt-6 space-y-4 {{ $intervention->status == 'terminée' ? '' : 'hidden' }} border-t pt-4">
+    <h3 class="font-semibold text-lg text-gray-800 mb-3">Détails du rapport</h3>
 
-                <div class="space-y-3 text-sm text-gray-700">
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="col-span-1"><strong>ID Rapport:</strong></div>
-                        <div class="col-span-3"><span id="rapportId"></span></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="col-span-1"><strong>Intervention:</strong></div>
-                        <div class="col-span-3"><span id="interventionId"></span></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="col-span-1"><strong>Date de traitement:</strong></div>
-                        <div class="col-span-3"><span id="dateTraitement"></span></div>
-                    </div>
-                    
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="col-span-1"><strong>Technicien:</strong></div>
-                        <div class="col-span-3"><span id="technicienNom"></span></div>
-                    </div>
-                    
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <strong class="block mb-2 text-gray-900">Contenu du rapport :</strong>
-                        <p id="rapportContenu" class="mt-2 text-gray-700 whitespace-pre-line"></p>
-                    </div>
-                    
+    <div class="space-y-3 text-sm text-gray-700">
+        <div class="grid grid-cols-4 gap-2">
+            <div class="col-span-1"><strong>ID Rapport:</strong></div>
+            <div class="col-span-3"><span id="rapportId">{{ $intervention->rapport->id ?? 'N/A' }}</span></div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-2">
+            <div class="col-span-1"><strong>Intervention:</strong></div>
+            <div class="col-span-3"><span id="interventionId">{{ $intervention->id }}</span></div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-2">
+    <div class="col-span-1"><strong>Date de traitement:</strong></div>
+    <div class="col-span-3">
+        @if($intervention->rapport->date_traitement)
+            <span id="dateTraitement">{{ $intervention->rapport->date_traitement->format('d/m/Y H:i') }}</span>
+        @else
+            <span id="dateTraitement">Non renseignée</span>
+        @endif
+    </div>
+</div>
+
+        
+        <div class="grid grid-cols-4 gap-2">
+            <div class="col-span-1"><strong>Technicien:</strong></div>
+            <div class="col-span-3"><span id="technicienNom">{{ $intervention->rapport->technicien->name ?? 'N/A' }}</span></div>
+        </div>
+        
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <strong class="block mb-2 text-gray-900">Contenu du rapport :</strong>
+            <p id="rapportContenu" class="mt-2 text-gray-700 whitespace-pre-line">{{ $intervention->rapport->contenu ?? 'Aucun rapport ajouté' }}</p>
+        </div>
+        
+        <div class="mt-3">
+            <strong class="block mb-2 text-gray-900">Tâches effectuées :</strong>
+            <ul id="rapportTaches" class="space-y-2">
+                @foreach($intervention->rapport->taches as $tache)
+                    <li class="text-sm text-gray-700">{{ $tache->description }}</li>
+                @endforeach
+            </ul>
+        </div>
+
+        <!-- Affichage de la réouverture si l'intervention a été réouverte -->
+        @if(isset($lastReouverture))
+            <div class="mt-4">
+                <strong class="block text-gray-900">Réouverture :</strong>
+                <span class="text-sm text-gray-700">{{ $lastReouverture->created_at->format('d/m/Y H:i') }}</span>
+
+                @if($intervention->rapport && $intervention->rapport->updated_at > $lastReouverture->created_at)
+                    <!-- Si un rapport a été ajouté après la réouverture, on affiche le rapport comme d'habitude -->
                     <div class="mt-3">
-                        <strong class="block mb-2 text-gray-900">Tâches effectuées :</strong>
-                        <ul id="rapportTaches" class="space-y-2"></ul>
+                        <strong class="block text-gray-900">Nouveau Rapport :</strong>
+                        <p class="text-sm text-gray-700">{{ $intervention->rapport->contenu }}</p>
                     </div>
-                    
-                </div>
+                @else
+                    <!-- Si aucune modification n'a été faite, on affiche juste la date -->
+                    <p class="text-sm text-gray-700">Aucune modification après la réouverture.</p>
+                @endif
             </div>
+        @endif
+    </div>
+</div>
 
-            <div class="flex justify-center mt-6">
-                <button type="button" onclick="closeInterventionDetailsModal()" 
-                        class="px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition">
-                    Fermer
-                </button>
-                <!-- Bouton -->
-<button type="button" onclick="printIntervention()" 
-        class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition mr-2">
-    <i class="fas fa-print mr-1"></i> Imprimer  
-</button>
+
+<!-- Boutons pour fermer ou imprimer -->
+<div class="flex justify-center mt-6">
+    <button type="button" onclick="closeInterventionDetailsModal()" 
+            class="px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition">
+        Fermer
+    </button>
+    
+    <!-- Bouton Imprimer -->
+    <button type="button" onclick="printIntervention()" 
+            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition mr-2">
+        <i class="fas fa-print mr-1"></i> Imprimer  
+    </button>  
+</div>
+
 
 <!-- Script -->
 <script>
