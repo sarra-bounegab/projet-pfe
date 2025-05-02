@@ -58,11 +58,17 @@ public function service()
     return $this->belongsTo(Service::class);
 }
 
+//public function interventions()
+//{
+ //   return $this->hasMany(Intervention::class);
+//}
+
+
 public function interventions()
 {
-    return $this->hasMany(Intervention::class);
+return $this->belongsToMany(Intervention::class, 'details_interventions', 'technicien_id', 'intervention_id')
+->withPivot('type_intervention_id', 'status', 'created_at', 'updated_at')
+->withTimestamps();
 }
-
-
 
 }

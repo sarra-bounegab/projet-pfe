@@ -22,6 +22,9 @@ use Illuminate\Database\Eloquent\Model;
     {
         return $this->belongsTo(User::class, 'technicien_id');
     }
-
+// Relation avec historique des modifications
+public function historique()
+{
+    return $this->hasMany(RapportDetail::class);
+}
     }
-
