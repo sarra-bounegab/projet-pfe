@@ -21,7 +21,7 @@ class CheckUserStatus
             
            
             if ($user->status == 0) {
-                Auth::logout(); // Log them out
+                Auth::logout(); 
                 return redirect()->route('login')->with('error', 'Votre compte est en attente d\'approbation.');
             }
     

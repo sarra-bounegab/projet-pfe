@@ -12,7 +12,7 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
-    // Show the list of users
+   
     public function gestionUsers()
 {
     $users = User::where('profile_id', 3)->with('service')->get(); 
@@ -32,7 +32,7 @@ class AdminController extends Controller
 
     public function create()
     {
-        $services = Service::all(); // Récupérer tous les services
+        $services = Service::all(); 
     return view('admin.gestionsGlobale', compact('services'));
     }
     

@@ -364,6 +364,7 @@ Route::post('/rapport/{rapport}/update-taches', [RapportController::class, 'upda
 
 
 
+Route::get('/intervention/{id}', [InterventionController::class, 'show'])->name('interventions.show');
 
 
 
@@ -372,8 +373,9 @@ Route::post('/rapports/storeOrUpdate', [RapportController::class, 'storeOrUpdate
 
 Route::post('intervention/{id}/cloturer', [InterventionController::class, 'cloturer'])->name('intervention.cloturer');
 
+Route::get('/intervention/{id}/rapport', [InterventionController::class, 'getRapport']);
 
-
+Route::post('/intervention/reouvrir/{id}', [InterventionController::class, 'reouvrir'])->name('intervention.reouvrir');
 
 Route::get('/intervention/{id}/details', [InterventionController::class, 'show'])->name('intervention.details');
 
@@ -438,5 +440,18 @@ Route::get('/intervention/{id}', [InterventionController::class, 'showInterventi
 
 // Route pour l'historique
 Route::get('/historique', [HistoriqueController::class, 'showHistorique'])->name('historique');
+
+
+
+
+
+
+
+
+Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+
+Route::get('/aide', function () {
+    return view('aide');
+})->name('aide');
 
 require __DIR__.'/auth.php';

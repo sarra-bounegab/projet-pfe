@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Historique;
 
 use App\Models\User; 
 use App\Models\Intervention;
@@ -69,17 +70,78 @@ class InterventionController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'required|string',
+{
+    // Trouver l'intervention
+    $intervention = Intervention::findOrFail($id);
+
+    // Vérifier si la réouverture est demandée
+    if ($request->has('reopen')) {
+        // Enregistrer l'action de réouverture
+        $intervention->historiques()->create([
+            'action' => 'Intervention réouverte',
+            'user_id' => auth()->id(),
+            'created_at' => now()
         ]);
-
-        $intervention = Intervention::findOrFail($id);
-        $intervention->update($request->all());
-
-        return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention mise à jour.');
     }
+
+    // Mettre à jour les informations du rapport
+    $rapport = $intervention->rapport;
+    $rapport->update([
+        'date_traitement' => $request->input('date_traitement'),
+        'contenu' => $request->input('contenu'),
+        'technicien_id' => auth()->id(),
+    ]);
+
+    // Si d'autres champs sont modifiés dans le rapport
+    if ($request->has('taches')) {
+        foreach ($request->input('taches') as $taskId) {
+            $task = Task::find($taskId);
+            // Vous pouvez mettre à jour les tâches si nécessaire
+            $task->update([
+                'status' => 'Complété',
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    // Enregistrer un historique des changements si nécessaire
+    $intervention->historiques()->create([
+        'action' => 'Modification de l\'intervention',
+        'user_id' => auth()->id(),
+        'created_at' => now()
+    ]);
+
+    return redirect()->route('interventions.show', ['id' => $id]);
+}
+
+    public function show($id)
+    {
+        $intervention = Intervention::with(['rapport', 'taches', 'historiques.user'])->findOrFail($id);
+    
+        // Récupérer les événements de réouverture dans l'ordre chronologique
+        $reouvertures = $intervention->historiques()
+            ->where('action', 'Intervention réouverte')
+            ->orderBy('created_at', 'asc')
+            ->get();
+    
+        // Récupérer la dernière réouverture si elle existe
+        $lastReouverture = $reouvertures->last();
+    
+        // Détecter si l'intervention a été réouverte
+        $isReopened = $lastReouverture !== null;
+    
+        // Si l'intervention est réouverte, conserver les anciennes données du rapport dans la session
+        if ($isReopened) {
+            session(['ancien_contenu_rapport' => $intervention->rapport->contenu]);
+            session(['date_reouverture' => $lastReouverture->created_at]);
+        }
+    
+        return view('interventions.show', compact('intervention', 'reouvertures', 'lastReouverture', 'isReopened'));
+    }
+    
+
+
+   
 
     public function destroy($id)
     {
@@ -161,6 +223,14 @@ public function cloturer($id)
     return redirect()->back()->with('info', 'Cette intervention est déjà terminée.');
 }
 
+
+
+
+
+
+
+
+
 public function showRapport($id)
 {
     $intervention = Intervention::findOrFail($id);
@@ -191,6 +261,27 @@ public function showRapport($id)
         })
     ]);
 }
+public function reouvrir($id)
+{
+    $intervention = Intervention::findOrFail($id);
+    if ($intervention->status === 'Terminé') {
+        // Met à jour le statut et la date
+        $intervention->status = 'En cours';
+        $intervention->updated_at = now();
+        $intervention->save();
+
+        // Optionnel : enregistrer un historique si tu en as un
+        Historique::create([
+            'intervention_id' => $intervention->id,
+            'user_id' => auth()->id(),
+            'action' => 'Réouverture',
+            'created_at' => now()
+        ]);
+    }
+
+    return redirect()->back()->with('success', 'Intervention réouverte avec succès.');
+}
+
 
 
 public function getRapport($interventionId)

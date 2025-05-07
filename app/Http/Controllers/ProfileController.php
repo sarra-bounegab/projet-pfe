@@ -19,9 +19,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Met à jour les informations du profil de l'utilisateur.
-     */
+    
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         // Met à jour les informations de l'utilisateur avec les données validées

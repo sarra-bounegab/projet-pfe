@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
 
@@ -202,7 +202,7 @@
 <!-- Script -->
 <script>
     function printIntervention() {
-    // Récupération des données de l'intervention
+    
     const id = document.getElementById('detail_intervention_id').textContent.trim();
     const user = document.getElementById('detail_intervention_user').textContent.trim();
     const titre = document.getElementById('detail_intervention_titre').textContent.trim();
@@ -495,7 +495,7 @@
     }
 
     function openInterventionDetailsModal(id, user, titre, description, created_at, type, status) {
-        // Mettre à jour les détails de l'intervention
+       
         document.getElementById("detail_intervention_id").textContent = id;
         document.getElementById("detail_intervention_user").textContent = user;
         document.getElementById("detail_intervention_titre").textContent = titre;
@@ -504,10 +504,10 @@
         document.getElementById("detail_intervention_type").textContent = type;
         updateStatusColor(status);
 
-        // Si l'intervention est terminée, afficher la section rapport
+   
         if (status === "Terminé") {
             document.getElementById('rapportSection').classList.remove('hidden');
-            // Récupérer et afficher les détails du rapport
+           
             fetch("{{ url('/intervention') }}/" + id + "/rapport")
                 .then(response => response.json())
                 .then(data => {
@@ -552,7 +552,7 @@
             document.getElementById('rapportSection').classList.add('hidden');
         }
 
-        // Afficher le modal
+        
         document.getElementById("interventionDetailsModal").classList.remove("hidden");
     }
 
@@ -692,10 +692,5 @@
 
 
 
-
-
-
-
- 
 
 @endsection

@@ -50,7 +50,12 @@
                     <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded">Inconnu</span>
                 @endif
             </td>
-            <td>{{ $user->service?->parentService?->name ?? $user->service?->name ?? 'No Parent' }}</td>
+            <td class="border px-4 py-2">
+    {{ $user->service?->name ?? 'Aucun service' }}
+    @if($user->service?->parentService)
+        <span class="text-xs text-blue-500 ml-1" title="Parent: {{ $user->service->parentService->name }}"></span>
+    @endif
+</td>
 
 
             <td class="border px-4 py-2">
@@ -61,11 +66,17 @@
                 @endif
             </td>
             <td class="border px-4 py-2">
-            <button onclick="openEditUserModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', {{ $user->status }})"
-        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-    Modifier
-</button>
+                
+     @php
+      $authProfile = auth()->user()->profile_id;
+      @endphp
 
+@if($authProfile == 4 || ($authProfile == 1 && $user->profile_id != 1))
+    <button onclick="openEditUserModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', {{ $user->status }})"
+        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+        Modifier
+    </button>
+@endif
             </td>
         </tr>
     @endforeach
@@ -102,11 +113,15 @@
             </select>
 
             <label class="block text-sm font-medium">Profil</label>
-            <select id="edit_user_profile" name="profile_id" class="border p-2 w-full mb-4">
-                <option value="1">Administrateur</option>
-                <option value="2">Technicien</option>
-                <option value="3">Employé</option>
-            </select>
+<select id="edit_user_profile" name="profile_id" class="border p-2 w-full mb-4">
+    @if(auth()->user()->profile_id == 4) {{-- Super Admin --}}
+        <option value="1">Administrateur</option>
+    @endif
+
+    <option value="2">Technicien</option>
+    <option value="3">Employé</option>
+</select>
+
 
             <div class="flex justify-end">
                 <button type="button" onclick="closeEditUserModal()" class="mr-2 text-gray-600">Annuler</button>
