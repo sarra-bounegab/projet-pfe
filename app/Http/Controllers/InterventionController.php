@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 namespace App\Http\Controllers;
 use App\Models\Historique;
+use Illuminate\Validation\Rule;
 
 use App\Models\User; 
 use App\Models\Intervention;
@@ -18,16 +19,37 @@ use App\Http\Controllers\TechnicianController;
 
 class InterventionController extends Controller
 {
-    public function index()
-    {
-        $interventions = Intervention::with(['user', 'typeIntervention'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-        $typesIntervention = TypeIntervention::all();
-        
-        return view('technicien.interventions.index', compact('interventions', 'typesIntervention'));
+   public function index()
+{
+    $user = auth()->user(); // ou Auth::user()
+
+    $interventions = Intervention::with(['user', 'typeIntervention'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+      $interventions = Intervention::all();
+        $techniciens = User::where('profile_id', 'technicien')->get();
+
+    $typesIntervention = TypeIntervention::all();
+
+    // Vérifier les profiles 1 (Admin) et 4 (Autre, si nécessaire)
+    if ($user->profile_id == 1 || $user->profile_id == 4) {
+        return view('admin.gestionsinterventions', compact('interventions', 'typesIntervention', 'techniciens'));
     }
+
+    // Vérifier le profile 2 (Technicien)
+    if ($user->profile_id == 2) {
+        return view('technician.gestionsinterventions', compact('interventions', 'typesIntervention'));
+    }
+
+    // Vérifier le profile 3 (Utilisateur)
+    if ($user->profile_id == 3) {
+        return view('user.gestionsinterventions', compact('interventions', 'typesIntervention'));
+    }
+
+    // Si aucun profile ne correspond
+    abort(403); // ou rediriger vers une page d'erreur
+}
+
     public function adminIndex()
     {
         $interventions = Intervention::with('user')->get();
@@ -271,6 +293,14 @@ public function reouvrir($id)
 
     return redirect()->back()->with('success', 'Intervention réouverte avec succès.');
 }
+public function interventionsPlus()
+{
+    $interventions = Intervention::all(); // ou ce que tu veux charger
+    return view('interventions.interventionsplus', compact('interventions'));
+}
+
+
+
 
 
     public function update(Request $request, $id)
@@ -342,6 +372,7 @@ public function reouvrir($id)
     }
 
 
+    
     public function addType(Request $request, $id)
 {
     $request->validate([
@@ -374,6 +405,15 @@ public function reouvrir($id)
         'type_name' => $typeName
     ]);
 }
+
+
+public function print($id)
+{
+    $intervention = Intervention::with(['details.type', 'details.technicien', 'historiques'])->findOrFail($id);
+    return view('interventions.print', compact('intervention'));
+}
+
+
 
 
 
@@ -607,6 +647,109 @@ public function getInterventionDetails($id)
         ], 404);
     }
 }
+
+
+
+
+
+
+
+public function interventionsDetails($id)
+{
+    $intervention = Intervention::with(['technicien', 'type'])->findOrFail($id);
+
+    $user = auth()->user();
+
+    // Technicien peut voir seulement ses interventions
+    if ($user->profile_id == 3 && $user->id !== $intervention->technicien_id) {
+        abort(403, 'Accès interdit');
+    }
+
+    return view('intervention.details', compact('intervention'));
+}
+
+public function show($id)
+{
+    $intervention = Intervention::with(['details.type', 'details.technicien'])
+            ->findOrFail($id);
+    $intervention = Intervention::with([
+        'details' => function($query) {
+            $query->with(['technicien:id,name', 'type:id,type'])
+                  ->orderBy('created_at', 'desc');
+        },
+        'user:id,name' // Si vous avez un créateur
+    ])->findOrFail($id);
+
+    // Debug final (à supprimer après vérification)
+    logger('Détails chargés:', [
+        'count' => $intervention->details->count(),
+        'premier' => $intervention->details->first()?->toArray()
+    ]);
+
+    
+
+    return view('interventions.details', compact('intervention'));
+}
+
+
+
+
+public function showHistorique($id)
+{
+    // Récupérer l'intervention avec ses détails et relations
+    $intervention = Intervention::with([
+        'details' => function($query) {
+            $query->with(['technicien:id,name', 'type:id,type'])
+                  ->orderBy('created_at', 'desc');
+        },
+        'user:id,name'
+    ])->findOrFail($id);
+
+    // Récupérer les historiques associés à l'intervention avec leurs utilisateurs
+    $historiques = InterventionHistorique::with('user') // ✅ Charger la relation user
+        ->where('intervention_id', $intervention->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // Log pour débogage
+    logger('Historiques chargés:', [
+        'count' => $historiques->count(),
+        'premier' => $historiques->first() ? $historiques->first()->toArray() : null
+    ]);
+
+    
+
+    // Passer les données à la vue
+    return view('interventions.details', compact('intervention', 'historiques'));
+}
+
+
+
+public function historiqueIndex()
+{
+    // Récupérer toutes les interventions terminées avec leurs relations
+    $interventions = Intervention::with(['user:id,name', 'typeIntervention:id,type', 'techniciens:id,name'])
+        ->where('status', 'Terminé')
+        ->orderBy('updated_at', 'desc')
+        ->get();
+    
+    return view('interventions.historique', compact('interventions'));
+
+}
+
+
+public function story()
+{
+    $interventions = Intervention::with(['user:id,name', 'techniciens:id,name', 'typeIntervention:id,type'])
+        ->where('statut', 'terminée') // ou adapte si besoin
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('story', compact('interventions'));
+
+
+}
+
 
 
 }

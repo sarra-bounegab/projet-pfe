@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Validation\Rule;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,30 +12,30 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
+    // ProfileController.php
 
-    
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        // Met à jour les informations de l'utilisateur avec les données validées
-        $request->user()->fill($request->validated());
+public function edit()
+{
+    $user = auth()->user();
+    return view('profile.edit', compact('user'));
+}
 
-        // Si l'email a été modifié, réinitialiser la vérification de l'email
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+public function update(Request $request)
+{
+    $user = auth()->user();
 
-        // Sauvegarder les informations de l'utilisateur
-        $request->user()->save();
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+    ]);
 
-        // Retourner à la page d'édition avec un message de succès
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
+    $user->update([
+        'name' => $request->name,
+        'email' => $request->email,
+    ]);
+
+    return redirect()->route('profile.edit')->with('status', 'profile-updated');
+}
 
     /**
      * Supprime le compte de l'utilisateur.

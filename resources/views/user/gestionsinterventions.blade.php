@@ -45,10 +45,9 @@
                                 <td class="border px-4 py-2">{{ \Carbon\Carbon::parse($intervention->created_at)->format('d/m/Y H:i') }}</td>
                                 
                                 <td class="border px-4 py-2 space-x-2">
-                                    <button onclick="openInterventionDetailsModal('{{ $intervention->id }}', '{{ $intervention->user->name }}', '{{ $intervention->titre }}', '{{ $intervention->description }}', '{{ $intervention->created_at->format('d/m/Y') }}', '{{ $intervention->typeIntervention ? $intervention->typeIntervention->type : 'Non défini' }}', '{{ $intervention->status }}')" 
-                                            class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600">
-                                        Détails
-                                    </button>
+                                <a href="{{ route('interventions.show', $intervention->id) }}" class="btn btn-sm btn-info">
+    <i class="fas fa-eye"></i> Détails
+</a>
                                     
                                     @if(in_array($intervention->status, ['En attente']))
                                         <!-- Bouton Modifier -->
@@ -139,126 +138,7 @@
 }
     </script>
 
-    
-<!-- Modal pour les détails de l'intervention -->
-<div class="h-screen flex flex-col items-center justify-center bg-gray-50 py-">
-    <div id="interventionDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl border border-gray-200 relative max-h-[90vh] overflow-y-auto">
-            
-            <!-- Bouton de fermeture -->
-            <button type="button" onclick="closeInterventionDetailsModal()" 
-                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-            </button>
-
-            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Détails de l'intervention</h2>
-
-            <!-- Section des détails de l'intervention -->
-            <div class="space-y-4 text-sm text-gray-700">
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">ID:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_id"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Utilisateur:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_user"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Titre:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_titre"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Date de création:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_creation_date"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Type:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_type"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="col-span-1">
-                        <span class="font-medium text-gray-900">Statut:</span>
-                    </div>
-                    <div class="col-span-3">
-                        <span id="detail_intervention_status" class="px-3 py-1 text-sm font-semibold rounded-md"></span>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-4 rounded-lg text-gray-800 border border-gray-200">
-                    <strong class="block mb-2 text-gray-900">Description :</strong>
-                    <p id="detail_intervention_description" class="mt-2 text-gray-700 whitespace-pre-line"></p>
-                </div>
-            </div>
-
-            <!-- Section technique -->
-<div class="border-t pt-4 mt-4 space-y-4 text-sm text-gray-700">
-    <h3 class="text-lg font-semibold text-gray-800">Informations techniques</h3>
-
-    <!-- Technicien -->
-    <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-1">
-            <span class="font-medium text-gray-900">Technicien:</span>
-        </div>
-        <div class="col-span-3">
-            <span id="detail_intervention_technicien"></span>
-        </div>
-    </div>
-
-    <!-- Type d'intervention -->
-    <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-1">
-            <span class="font-medium text-gray-900">Type d'intervention:</span>
-        </div>
-        <div class="col-span-3">
-            <span id="detail_intervention_type_intervention"></span>
-        </div>
-    </div>
-
-    <!-- Contenu -->
-    <div class="bg-gray-50 p-4 rounded-lg text-gray-800 border border-gray-200">
-        <strong class="block mb-2 text-gray-900">Contenu :</strong>
-        <p id="detail_intervention_contenu" class="mt-2 text-gray-700 whitespace-pre-line"></p>
-    </div>
-</div>
-
-
-            <div class="flex justify-center mt-6">
-                <button type="button" onclick="closeInterventionDetailsModal()" 
-                        class="px-5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition">
-                    Fermer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
+  
 <script>
     function updateStatusColor(status) {
         const statusElement = document.getElementById("detail_intervention_status");

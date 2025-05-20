@@ -37,10 +37,9 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
-                        <button onclick="openInterventionDetailsModal('{{ $intervention->id }}', '{{ $intervention->user->name }}', '{{ $intervention->titre }}', '{{ $intervention->description }}', '{{ $intervention->created_at->format('d/m/Y') }}', '{{ json_encode($intervention->typesIntervention) }}', '{{ $intervention->status }}')" 
-                                class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">
-                            Details 
-                        </button>
+                        <a href="{{ route('interventions.show', $intervention->id) }}" class="btn btn-sm btn-info">
+    <i class="fas fa-eye"></i> Détails
+</a>
                         
 
                         @if ($intervention->status !== 'Terminé')
@@ -96,7 +95,7 @@
                     <select class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" id="type_intervention_id" name="type_intervention_id" required>
                         <option value="">Sélectionner un type</option>
                         @foreach($typesIntervention as $type)
-                            <option value="{{ $type->id }}">{{ $type->nom }}</option>
+                            <option value="{{ $type->id }}">{{ $type->type }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -271,10 +270,10 @@ document.addEventListener('DOMContentLoaded', function() {
         visibleContent.className = 'detail-visible';
         visibleContent.innerHTML = `
             <div class="flex justify-between items-center mb-2">
-                <strong class="text-gray-800">${detail.type_intervention.nom}</strong>
+                <strong class="text-gray-800">${detail.type_intervention.type}</strong>
                 <div class="space-x-2">
-                    <button type="button" class="edit-button px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm" data-detail-id="${detail.id}">Modifier</button>
-                    <button type="button" class="delete-button px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm" data-detail-id="${detail.id}">Supprimer</button>
+                    <button type="button" class="edit-button px-2 py-1 bg-green-700 text-green-700 rounded hover:bg-green-200 text-sm" data-detail-id="${detail.id}">Modifier</button>
+                    <button type="button" class="delete-button px-2 py-1 bg-green-700 text-green-700 rounded hover:bg-green-200 text-sm" data-detail-id="${detail.id}">Supprimer</button>
                 </div>
             </div>
             <div class="text-gray-600 detail-content">${detail.contenu}</div>
@@ -527,84 +526,9 @@ function printIntervention() {
     const type = document.getElementById('detail_intervention_type').textContent.trim();
     const status = document.getElementById('detail_intervention_status').textContent.trim().toLowerCase();
 
-    // Utiliser Tailwind pour l'impression
-    const printWindow = window.open('', '_blank');
+   
     
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Intervention #${id}</title>
-            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-            <style>
-                @page { size: A4; margin: 15mm; }
-                body { font-family: 'Helvetica', 'Arial', sans-serif; }
-                @media print {
-                    .print-button { display: none; }
-                }
-            </style>
-        </head>
-        <body class="bg-gray-50 p-4">
-            <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-                <!-- En-tête -->
-                <div class="text-center border-b p-4 bg-gray-50">
-                    <div class="mb-2">
-                        <!-- Logo placeholder -->
-                        <div class="h-12 w-32 mx-auto mb-2 bg-gray-200 flex items-center justify-center text-gray-500">LOGO</div>
-                    </div>
-                    <h1 class="text-xl font-bold text-gray-800">Intervention #${id}</h1>
-                    <p class="text-sm text-gray-500">Document généré le ${new Date().toLocaleDateString('fr-FR')}</p>
-                </div>
-                
-                <!-- Informations de l'intervention -->
-                <div class="p-6">
-                    <h2 class="text-lg font-semibold mb-4 pb-2 border-b text-gray-700">Informations de l'intervention</h2>
-                    
-                    <div class="grid grid-cols-2 gap-y-2">
-                        <div class="font-medium text-gray-600">ID:</div>
-                        <div>${id}</div>
-                        
-                        <div class="font-medium text-gray-600">Utilisateur:</div>
-                        <div>${user}</div>
-                        
-                        <div class="font-medium text-gray-600">Titre:</div>
-                        <div>${titre}</div>
-                        
-                        <div class="font-medium text-gray-600">Date de création:</div>
-                        <div>${date}</div>
-                        
-                        <div class="font-medium text-gray-600">Type:</div>
-                        <div>${type}</div>
-                        
-                        <div class="font-medium text-gray-600">Statut:</div>
-                        <div><span class="px-2 py-1 ${status === 'terminé' ? 'bg-green-500' : status === 'en cours' ? 'bg-blue-500' : 'bg-yellow-500'} text-white text-xs rounded-full">${status}</span></div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h3 class="font-medium text-gray-600">Description:</h3>
-                        <div class="p-3 bg-gray-50 rounded mt-2 text-sm">${description}</div>
-                    </div>
-                </div>
-                
-                <!-- Pied de page -->
-                <div class="p-4 text-center border-t text-xs text-gray-500">
-                    <p>Ce document est confidentiel et destiné uniquement à usage interne.</p>
-                </div>
-            </div>
-            
-            <div class="text-center mt-6 print-button">
-                <button onclick="window.print()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Imprimer
-                </button>
-            </div>
-        </body>
-        </html>
-    `);
-    
-    printWindow.document.close();
-    setTimeout(() => {
-        printWindow.focus();
-    }, 500);
+   
 }
 
 // Fermer les modals en cliquant en dehors

@@ -1,14 +1,13 @@
-import forms from '@tailwindcss/forms';
+const forms = require('@tailwindcss/forms');
 
-/** @type {import('tailwindcss').Config} */
-export default {
-    content: [
-        "./resources/views/**/*.blade.php",
-        "./resources/js/**/*.js",
-        "./resources/css/**/*.css",
-    ],
-    theme: {
-        extend: {},
-    },
-    plugins: [forms],  // Ne pas mettre `plugins: []` deux fois
+module.exports = {
+  content: [
+    "./resources/views/**/*.blade.php",
+    "./resources/js/**/*.js",
+    "./resources/css/**/*.css",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [forms],
 };

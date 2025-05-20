@@ -516,8 +516,8 @@ Route::delete('/technicien/delete-detail/{id}', [TechnicianController::class, 'd
 
 // Routes pour les techniciens
 Route::prefix('technicien')->group(function () {
-    Route::get('/interventions', [TechnicienController::class, 'index'])->name('technicien.interventions');
-    Route::post('/update-intervention/{id}', [TechnicienController::class, 'updateIntervention']);
+    Route::get('/interventions', [TechnicianController::class, 'index'])->name('technicien.interventions');
+    Route::post('/update-intervention/{id}', [TechnicianController::class, 'updateIntervention']);
 });
 
 
@@ -627,14 +627,15 @@ Route::get('/interventions/{intervention}/details', [InterventionController::cla
         if (!$intervention) {
             return response()->json(['error' => 'Intervention introuvable'], 404);
         }
-    
+     
+        
         return response()->json($intervention);
     });
 
  
 Route::get('/interventions/{id}', [InterventionController::class, 'show']);
 
-Route::get('/technicien/interventions/{intervention}/details', [TechnicienController::class, 'getTechnicalDetails'])
+Route::get('/technicien/interventions/{intervention}/details', [TechnicianController::class, 'getTechnicalDetails'])
     ->name('technicien.interventions.details');
 
     Route::get('/intervention/details/{interventionId}', [InterventionController::class, 'getInterventionDetails'])
@@ -645,5 +646,58 @@ Route::get('/technicien/interventions/{intervention}/details', [TechnicienContro
     Route::get('/intervention/{id}/details', [InterventionController::class, 'getInterventionDetails']);
 Route::get('/interventions/{id}/details', [InterventionController::class, 'getInterventionDetails']);
 
+
+Route::get('/interventions-details/{id}', [InterventionController::class, 'interventionsDetails'])->name('interventions-details');
+
+
+Route::get('/interventions/{id}/details', [App\Http\Controllers\InterventionController::class, 'show'])
+    ->name('interventions.details')
+    ->middleware('auth');
+
+// Route pour éditer une intervention (accessible uniquement pour les admins et les techniciens concernés)
+Route::get('/interventions/{id}/edit', [App\Http\Controllers\InterventionController::class, 'edit'])
+    ->name('interventions.edit')
+    ->middleware('auth');
+
+// Route pour mettre à jour une intervention
+Route::put('/interventions/{id}', [App\Http\Controllers\InterventionController::class, 'update'])
+    ->name('interventions.update')
+    ->middleware('auth');
+
+
+
+
+Route::get('/admin/gestionsinterventions', [InterventionController::class, 'index'])
+    ->name('admin.gestionsinterventions');
+
+Route::get('/technician/gestionsinterventions', [InterventionController::class, 'index'])
+    ->name('technician.gestionsinterventions');
+
+Route::get('/user/gestionsinterventions', [InterventionController::class, 'index'])
+    ->name('user.gestionsinterventions');
+
+  
+    
+Route::get('/interventions/{id}/historique', [InterventionController::class, 'showHistorique']);
+
+Route::get('/intervention/{id}/print', [InterventionController::class, 'print'])->name('intervention.print');
+
+
+
+
+Route::get('/interventions/historique', [InterventionController::class, 'historiqueTerminees'])->name('interventions.historique');
+
+
+
+
+
+Route::get('/interventions/historique', [HistoriqueController::class, 'index'])->name('interventions.historique');
+
+
+Route::get('/historiques', [InterventionController::class, 'historiques'])->name('interventions.historiques');
+
+
+
+Route::get('/interventions/plus', [InterventionController::class, 'interventionsPlus'])->name('interventions.plus');
 
 require __DIR__.'/auth.php';

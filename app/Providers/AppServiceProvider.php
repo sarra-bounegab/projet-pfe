@@ -4,7 +4,11 @@ namespace App\Providers;
 use App\Models\Rapport;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Intervention;
+use App\Models\InterventionHistorique;
 use App\Observers\InterventionObserver;
+use App\Models\DetailsIntervention;
+use App\Observers\DetailsInterventionObserver;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     Intervention::observe(InterventionObserver::class);
     
     
-    Rapport::observe(\App\Observers\RapportObserver::class);
+     DetailsIntervention::observe(DetailsInterventionObserver::class);
 }
 
     public function register()

@@ -60,6 +60,12 @@ public function type_intervention()
 }
 
 
+public function type()
+{
+    return $this->belongsTo(TypeIntervention::class, 'type_intervention_id');
+}
+
+
 
 
 }

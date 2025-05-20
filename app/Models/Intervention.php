@@ -15,8 +15,6 @@ class Intervention extends Model
         'user_id',
         'description',
         'status',
-        
-       
         'date'
     ];
 
@@ -59,9 +57,35 @@ class Intervention extends Model
     }
     
 // Intervention.php
+
+
+
+public function historiques()
+{
+    return $this->hasMany(InterventionsHistorique::class); // ou InterventionHistorique selon ton modèle
+}
+
+
+
+
+
+// Relation avec le modèle Technicien (un technicien peut être assigné à plusieurs interventions)
+public function technicien()
+{
+    return $this->belongsTo(User::class, 'technicien_id'); // Assure-toi que la clé étrangère est bien définie
+}
+
+// Relation avec le modèle Détail (une intervention peut avoir plusieurs détails techniques)
 public function details()
 {
-    return $this->hasOne(DetailsIntervention::class);
+    return $this->hasMany(DetailsIntervention::class, 'intervention_id'); // Assure-toi que la clé étrangère est correcte
+}
+
+// app/Models/Intervention.php
+
+public function typeIntervention()
+{
+    return $this->belongsTo(TypeIntervention::class, 'type_intervention_id');
 }
 
 }

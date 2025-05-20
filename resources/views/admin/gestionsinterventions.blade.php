@@ -50,7 +50,7 @@
                                             data-intervention-id="{{ $intervention->id }}">
                                         Attribuer
                                     </button>
-                                @else
+                                @elseif ($intervention->status == 'En cours')
                                     <button class="cancel-assign-btn px-3 py-1 rounded text-white bg-red-500 hover:bg-red-600 transition"
                                             data-intervention-id="{{ $intervention->id }}"
                                             data-techniciens="{{ json_encode($intervention->techniciens->map(function($tech) {
@@ -76,10 +76,10 @@
                         </td>
                         <td class="border px-4 py-2">
                             <div class="flex flex-wrap gap-2">
-                                <button onclick="openInterventionDetailsModal({{ $intervention->id }})" 
-                                        class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-                                    Détails
-                                </button>
+                                <a href="{{ route('interventions.show', $intervention->id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i> Détails
+                                </a>
+
                                 @if ($intervention->status === 'Terminé')
                                     <form action="{{ route('intervention.reouvrir', $intervention->id) }}" method="POST" class="inline">
                                         @csrf
@@ -96,6 +96,8 @@
         </table>
     </div>
 </div>
+
+
 
 <!-- Modal pour les détails de l'intervention -->
 <div id="interventionDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">

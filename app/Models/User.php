@@ -70,5 +70,10 @@ return $this->belongsToMany(Intervention::class, 'details_interventions', 'techn
 ->withPivot('type_intervention_id', 'status', 'created_at', 'updated_at')
 ->withTimestamps();
 }
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
 
 }
