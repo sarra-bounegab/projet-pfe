@@ -454,4 +454,14 @@ Route::get('/aide', function () {
     return view('aide');
 })->name('aide');
 
+use App\Http\Controllers\NotificationController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::get('/notifications/{id}', [NotificationController::class, 'showDetails'])->name('notifications.showDetails');
+});
+
+Route::get('/statistics/interventions/status', [StatisticsController::class, 'getInterventionsByStatus']);
+
 require __DIR__.'/auth.php';

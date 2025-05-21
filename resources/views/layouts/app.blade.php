@@ -67,8 +67,8 @@
             </a>
         </div>
             <ul class="flex-grow p-4 space-y-2">
-            
-                @if(auth()->user()->profile_id == 1 || auth()->user()->profile_id == 4) 
+
+                @if(auth()->user()->profile_id == 1 || auth()->user()->profile_id == 4)
                 <li>
     <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
     <i class="fa-solid fa-chart-simple mr-2"></i>
@@ -83,7 +83,7 @@
 </li>
 <li>
     <a href="{{ route('admin.gestionsGlobale') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-    <i class="fa-solid fa-users mr-2"></i> 
+    <i class="fa-solid fa-users mr-2"></i>
         Gestion Utilisateurs
     </a>
 </li>
@@ -100,8 +100,17 @@
     </a>
 </li>
 
-                @elseif(auth()->user()->profile_id == 2)  
-                     
+
+                <li>
+    <a href="{{ route('notifications.index') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
+    <i class="fa-solid fa-chart-simple mr-2"></i>
+        Notifications
+    </a>
+</li>
+
+
+                @elseif(auth()->user()->profile_id == 2)
+
                 <li>
     <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
     <i class="fa-solid fa-chart-simple mr-2"></i>
@@ -111,12 +120,12 @@
                     <li>
                         <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                         <i class="fa-solid fa-tools mr-2" ></i>
-                        Gestion Interventions  
+                        Gestion Interventions
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
-                        
+
                         <i class="fa-solid fa-tools mr-2" ></i> Mes interventions
                         </a>
                     </li>
@@ -133,7 +142,15 @@
                         Ajouter Intervention
                         </a>
                     </li>
-                @elseif(auth()->user()->profile_id == 3) 
+
+
+                <li>
+    <a href="{{ route('notifications.index') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
+    <i class="fa-solid fa-chart-simple mr-2"></i>
+        Notifications
+    </a>
+</li>
+                @elseif(auth()->user()->profile_id == 3)
                 <li>
     <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
         <i class="fa-solid fa-chart-simple mr-2"></i> Statistique
@@ -143,7 +160,7 @@
 
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
-                        
+
                         <i class="fa-solid fa-tools mr-2" ></i> Mes interventions
                         </a>
                     </li>
@@ -154,6 +171,8 @@
         Historique
     </a>
 </li>
+
+
                     <li>
                         <a href="{{ route('user.gestionsinterventions.create') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                         <i class="fa-solid fa-circle-plus" ></i>
@@ -161,6 +180,11 @@
                         </a>
                     </li>
                 @endif
+
+                
+
+
+
             </ul>
             @auth
                 <div class="p-4 border-t border-gray-700">

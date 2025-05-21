@@ -12,9 +12,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Intervention::observe(InterventionObserver::class); // Enregistrement de l'observateur
     }
-
-    public function register()
-    {
-        //
-    }
+public function register()
+{
+    $this->app->bind(NotificationService::class, function ($app) {
+        return new NotificationService();
+    });
+}
 }

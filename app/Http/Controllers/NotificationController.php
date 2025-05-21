@@ -30,9 +30,10 @@ class NotificationController extends Controller
         return redirect()->back();
     }
 
+
     public function showDetails($id)
 {
-    $notification = Auth::user()->notifications()->where('id', $id)->first();
+    $notification = Auth::user()->notifications()->findOrFail($id);
 
     if (!$notification) {
         return redirect()->back()->with('error', 'Notification non trouvée.');

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 use App\Models\Historique;
 
-use App\Models\User; 
+use App\Models\User;
 use App\Models\Intervention;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TypeIntervention;
 use App\Models\Rapport;
-
+use App\Services\NotificationService;
 
 class InterventionController extends Controller
 {
@@ -51,7 +51,7 @@ class InterventionController extends Controller
             'type_intervention_id' => 'required|exists:type_interventions,id',
             'description' => 'required|string',
         ]);
-        
+
         Intervention::create([
             'titre' => $request->titre,
             'type_intervention_id' => $request->type_intervention_id,
@@ -59,7 +59,7 @@ class InterventionController extends Controller
             'user_id' => auth()->id(),
             'status' => 'En attente',
         ]);
-        
+
         return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention ajoutée.');
     }
 
@@ -117,31 +117,31 @@ class InterventionController extends Controller
     public function show($id)
     {
         $intervention = Intervention::with(['rapport', 'taches', 'historiques.user'])->findOrFail($id);
-    
+
         // Récupérer les événements de réouverture dans l'ordre chronologique
         $reouvertures = $intervention->historiques()
             ->where('action', 'Intervention réouverte')
             ->orderBy('created_at', 'asc')
             ->get();
-    
+
         // Récupérer la dernière réouverture si elle existe
         $lastReouverture = $reouvertures->last();
-    
+
         // Détecter si l'intervention a été réouverte
         $isReopened = $lastReouverture !== null;
-    
+
         // Si l'intervention est réouverte, conserver les anciennes données du rapport dans la session
         if ($isReopened) {
             session(['ancien_contenu_rapport' => $intervention->rapport->contenu]);
             session(['date_reouverture' => $lastReouverture->created_at]);
         }
-    
+
         return view('interventions.show', compact('intervention', 'reouvertures', 'lastReouverture', 'isReopened'));
     }
-    
 
 
-   
+
+
 
     public function destroy($id)
     {
@@ -170,6 +170,11 @@ class InterventionController extends Controller
         $intervention->technicien_id = $request->technicien_id;
         $intervention->status = 'En cours';
         $intervention->save();
+        // Notifier le technicien
+    $this->notificationService->notifyTechnicianAssignment(
+        $intervention,
+        Auth::user()
+    );
 
         return redirect()->back()->with('success', 'Technicien attribué avec succès.');
     }
@@ -183,8 +188,8 @@ class InterventionController extends Controller
     $intervention = Intervention::findOrFail($request->intervention_id);
 
     if ($intervention->status === 'En cours') {
-        $intervention->technicien_id = null; 
-        $intervention->status = 'En attente'; 
+        $intervention->technicien_id = null;
+        $intervention->status = 'En attente';
         $intervention->save();
 
         return response()->json(['success' => true, 'message' => 'Attribution annulée.']);
@@ -217,17 +222,22 @@ public function cloturer($id)
     if ($intervention->status !== 'Terminé') {
         $intervention->status = 'Terminé';
         $intervention->save();
+
+        // Notifier l'utilisateur
+        $this->notificationService->notifyStatusChange($intervention);
+        
         return redirect()->back()->with('success', 'Intervention clôturée avec succès.');
     }
 
     return redirect()->back()->with('info', 'Cette intervention est déjà terminée.');
 }
 
+protected $notificationService;
 
-
-
-
-
+public function __construct(NotificationService $notificationService)
+{
+    $this->notificationService = $notificationService;
+}
 
 
 
