@@ -698,6 +698,8 @@ Route::get('/historiques', [InterventionController::class, 'historiques'])->name
 
 
 
-Route::get('/interventions/plus', [InterventionController::class, 'interventionsPlus'])->name('interventions.plus');
 
+Route::get('/interventions', [InterventionController::class, 'index'])->name('interventions.index');
+Route::post('/interventions/clear-history', [InterventionController::class, 'clearHistory'])
+     ->name('interventions.clearHistory');
 require __DIR__.'/auth.php';

@@ -86,6 +86,13 @@
 
                         </a>
                     </li>
+                   <li>
+    <a href="{{ route('interventions.index', ['status' => 'termine']) }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
+        <i class="fa-solid fa-clock-rotate-left mr-2"></i>
+        Historique
+    </a>
+</li>
+
                 @elseif(auth()->user()->profile_id == 2)  
                     <li>
                         <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
