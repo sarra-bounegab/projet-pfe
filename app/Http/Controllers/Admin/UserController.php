@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 
 use App\Models\Intervention;
 

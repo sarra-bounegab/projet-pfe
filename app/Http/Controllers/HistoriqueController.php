@@ -1,12 +1,10 @@
 <?php
 
-
-
 namespace App\Http\Controllers;
- use Illuminate\Support\Facades\Auth;
-    use App\Models\Intervention;
-    use App\Models\Historique;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\Intervention;
+use App\Models\Historique;
 use Illuminate\Http\Request;
 
 class HistoriqueController extends Controller
@@ -85,5 +83,20 @@ public function showHistorique(Request $request)
     // Passer les données à la vue
     return view('historique', compact('historiques', 'interventions'));
 }
-    
+ 
+
+
+
+
+public function showStory()
+{
+    $interventions = Intervention::with(['user', 'typeIntervention'])
+        ->where('status', 'terminée')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('story', compact('interventions'));
+}
+
+
 }

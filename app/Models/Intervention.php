@@ -1,4 +1,5 @@
 <?php
+// First, let's update your Intervention model to support a many-to-many relationship with TypeIntervention
 
 namespace App\Models;
 
@@ -11,59 +12,80 @@ class Intervention extends Model
 
     protected $fillable = [
         'titre',
-        'type_intervention_id',
-        'description',
         'user_id',
-        'technicien_id', // Assurez-vous que cette colonne est bien dans $fillable
+        'description',
         'status',
+        'date'
     ];
 
-
-    // Relation avec l'utilisateur
+    // Relation avec l'utilisateur qui a créé l'intervention
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function typeIntervention()
+    public function techniciens()
     {
-        return $this->belongsTo(TypeIntervention::class);
+    return $this->belongsToMany(User::class, 'details_interventions', 'intervention_id', 'technicien_id')
+     ->withPivot('type_intervention_id', 'status', 'created_at', 'updated_at')
+     ->withTimestamps();
     }
-    public function technicien()
+    
+
+    // Single type relationship (keep for backward compatibility if needed)
+    public function type()
+    {
+        return $this->belongsTo(TypeIntervention::class, 'type_intervention_id');
+    }
+    
+    // New many-to-many relationship with types
+    public function types()
+    {
+        return $this->belongsToMany(TypeIntervention::class, 'intervention_type_intervention', 'intervention_id', 'type_intervention_id');
+    }
+
+    // Relation avec le rapport (s'il existe)
+    public function rapport()
+    {
+        return $this->hasOne(Rapport::class);
+    }
+    public function interventions()
+    {
+   return $this->belongsToMany(Intervention::class, 'details_interventions', 'technicien_id', 'intervention_id')
+   ->withPivot('type_intervention_id', 'status')
+    ->withTimestamps();
+    }
+    
+// Intervention.php
+
+
+
+public function historiques()
 {
-    return $this->belongsTo(User::class, 'technicien_id');
+    return $this->hasMany(InterventionsHistorique::class); // ou InterventionHistorique selon ton modèle
+}
+
+
+
+
+
+// Relation avec le modèle Technicien (un technicien peut être assigné à plusieurs interventions)
+public function technicien()
+{
+    return $this->belongsTo(User::class, 'technicien_id'); // Assure-toi que la clé étrangère est bien définie
+}
+
+// Relation avec le modèle Détail (une intervention peut avoir plusieurs détails techniques)
+public function details()
+{
+    return $this->hasMany(DetailsIntervention::class, 'intervention_id'); // Assure-toi que la clé étrangère est correcte
 }
 
 // app/Models/Intervention.php
-public function rapport()
+
+public function typeIntervention()
 {
-    return $this->hasOne(Rapport::class);
+    return $this->belongsTo(TypeIntervention::class, 'type_intervention_id');
 }
 
-
-    public function index()
-    {
-        $interventions = Intervention::all(); // Ou filtrer selon l'utilisateur
-        return view('intervention.index', compact('interventions'));
-    }
-
-// Relation avec l'intervention
-public function intervention()
-{
-    return $this->belongsTo(Intervention::class);
 }
-
-public function historiqueAttributions()
-{
-    return $this->hasMany(HistoriqueAttribution::class, 'intervention_id');
-}
-public function service()
-    {
-        return $this->belongsTo(Service::class);
-    }
-
-
-}
-
-
-
