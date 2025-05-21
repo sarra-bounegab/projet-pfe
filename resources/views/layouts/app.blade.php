@@ -42,7 +42,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
+
     <!-- Initialisation DataTables -->
     <script>
         $(document).ready(function() {
@@ -57,7 +57,6 @@
     <div class="flex">
         <!-- Sidebar fixée -->
         <nav class="fixed left-0 top-0 h-full w-64 bg-white text-grey flex flex-col shadow-xl">
-<<<<<<< HEAD
 
         <div class="p-8 text-center">
             <a href="{{ route('dashboard') }}">
@@ -171,64 +170,6 @@
 </li>
 
 
-=======
-            <div class="p-8 text-center">
-                <a href="{{ route('dashboard') }}">
-                    <img src="{{ asset('images/Logo-Anep-Animation.png') }}" class="w-30 h-12 mx-auto" alt="Logo">
-                </a>
-            </div>
-            
-            <ul class="flex-grow p-4 space-y-2">
-                @if(auth()->user()->profile_id == 1 || auth()->user()->profile_id == 4) 
-                    <li>
-                        <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-chart-simple mr-2"></i>
-                            Statistique
-                        </a>
-                    </li> 
-                    <li>
-                        <a href="{{ route('admin.gestionsGlobale') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-users mr-2"></i> 
-                            Gestion Utilisateurs
-                        </a>
-                    </li>
-                    <li>
-    <a href="{{ route('interventions.plus') }}">Page Interventions Plus</a>
-</li>
-
-                    <li>
-                        <a href="{{ route('admin.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-tools mr-2"></i>
-                            Gestion Interventions    
-
-                        </a>
-                    </li>
-                @elseif(auth()->user()->profile_id == 2)  
-                    <li>
-                        <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-chart-simple mr-2"></i>
-                            Statistique
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('technician.interventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-tools mr-2"></i>
-                            Gestion Interventions  
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-tools mr-2"></i> 
-                            Mes interventions
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('interventions.historique') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-clock-rotate-left mr-2"></i>
-                           Historiques interventions
-                        </a>
-                    </li>
->>>>>>> 9cb757b780aed92b354e86f514ea09f8392649e2
                     <li>
                         <a href="{{ route('user.gestionsinterventions.create') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
                             <i class="fa-solid fa-circle-plus mr-2"></i>
@@ -238,19 +179,19 @@
                 @elseif(auth()->user()->profile_id == 3)
                     <li>
                         <a href="{{ route('statistics') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-chart-simple mr-2"></i> 
+                            <i class="fa-solid fa-chart-simple mr-2"></i>
                             Statistique
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('user.gestionsinterventions') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-tools mr-2"></i> 
+                            <i class="fa-solid fa-tools mr-2"></i>
                             Mes interventions
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('historique') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-300 transition flex items-center">
-                            <i class="fa-solid fa-clock-rotate-left mr-2"></i> 
+                            <i class="fa-solid fa-clock-rotate-left mr-2"></i>
                             Historiques interventions
                         </a>
                     </li>
@@ -262,14 +203,14 @@
                     </li>
                 @endif
 
-                
+
 
 
 
             </ul>
-            
+
             @auth
-            
+
             <!-- User profile section in sidebar -->
             <div class="p-4 border-t border-gray-200">
                 <div class="flex items-center justify-between">

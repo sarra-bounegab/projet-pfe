@@ -33,96 +33,133 @@
             </div>
 
             <!-- Statut des interventions -->
-<div class="mt-10 bg-white p-6 rounded-lg shadow">
-    <h3 class="text-xl font-semibold mb-4">Interventions par statut</h3>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-        <!-- Donut Chart -->
-        <div class="flex justify-center">
-            <canvas id="statusChart" class="max-w-[280px] max-h-[280px]"></canvas>
-        </div>
-
-        <!-- Stat Blocks -->
-        <div class="space-y-3 text-sm">
-            <!-- En attente -->
-            <div class="flex items-center justify-between bg-yellow-100 px-4 py-3 rounded-lg shadow-sm">
-                <div class="flex items-center gap-2 text-yellow-700">
-                    <span class="text-lg">⏳</span>
-                    <span>En attente</span>
-                </div>
-                <span class="text-lg font-bold text-yellow-700">{{ $statusCounts['en attente'] ?? 0 }}</span>
-            </div>
-
-            <!-- En cours -->
-            <div class="flex items-center justify-between bg-blue-100 px-4 py-3 rounded-lg shadow-sm">
-                <div class="flex items-center gap-2 text-blue-700">
-                    <span class="text-lg">🛠️</span>
-                    <span>En cours</span>
-                </div>
-                <span class="text-lg font-bold text-blue-700">{{ $statusCounts['en cours'] ?? 0 }}</span>
-            </div>
-
-            <!-- Résolue -->
-            <div class="flex items-center justify-between bg-green-100 px-4 py-3 rounded-lg shadow-sm">
-                <div class="flex items-center gap-2 text-green-700">
-                    <span class="text-lg">✅</span>
-                    <span>Résolue</span>
-                </div>
-                <span class="text-lg font-bold text-green-700">{{ $statusCounts['résolue'] ?? 0 }}</span>
-            </div>
-
-            <!-- Annulée -->
-            <div class="flex items-center justify-between bg-red-100 px-4 py-3 rounded-lg shadow-sm">
-                <div class="flex items-center gap-2 text-red-700">
-                    <span class="text-lg">❌</span>
-                    <span>Annulée</span>
-                </div>
-                <span class="text-lg font-bold text-red-700">{{ $statusCounts['annulée'] ?? 0 }}</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-            <!-- Graphique utilisateurs -->
             <div class="mt-10 bg-white p-6 rounded-lg shadow">
-                <h3 class="text-xl font-semibold mb-4">Répartition des Utilisateurs</h3>
-                <canvas id="usersChart"></canvas>
+                <h3 class="text-xl font-semibold mb-4">Interventions par statut</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <!-- Donut Chart -->
+                    <div class="flex justify-center">
+                        <canvas id="statusChart" class="max-w-[280px] max-h-[280px]"></canvas>
+                    </div>
+
+                    <!-- Stat Blocks -->
+                    <div class="space-y-3 text-sm">
+                        <!-- En attente -->
+                        <div class="flex items-center justify-between bg-yellow-100 px-4 py-3 rounded-lg shadow-sm">
+                            <div class="flex items-center gap-2 text-yellow-700">
+                                <span class="text-lg">⏳</span>
+                                <span>En attente</span>
+                            </div>
+                            <span class="text-lg font-bold text-yellow-700">{{ $statusCounts['en attente'] ?? 0 }}</span>
+                        </div>
+
+                        <!-- En cours -->
+                        <div class="flex items-center justify-between bg-blue-100 px-4 py-3 rounded-lg shadow-sm">
+                            <div class="flex items-center gap-2 text-blue-700">
+                                <span class="text-lg">🛠️</span>
+                                <span>En cours</span>
+                            </div>
+                            <span class="text-lg font-bold text-blue-700">{{ $statusCounts['en cours'] ?? 0 }}</span>
+                        </div>
+
+                        <!-- Terminée -->
+                        <div class="flex items-center justify-between bg-green-100 px-4 py-3 rounded-lg shadow-sm">
+                            <div class="flex items-center gap-2 text-green-700">
+                                <span class="text-lg">✅</span>
+                                <span>Terminée</span>
+                            </div>
+                            <span class="text-lg font-bold text-green-700">{{ $statusCounts['terminée'] ?? 0 }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Répartition par service -->
+            <!-- Répartition par service améliorée -->
             <div class="mt-10 bg-white p-6 rounded-lg shadow">
-                <h3 class="text-xl font-semibold mb-4">Répartition par Service / Division</h3>
+                <h3 class="text-xl font-semibold mb-4">Analyse par Service</h3>
 
-                <div class="flex flex-wrap gap-4 mb-6">
-                    <div class="w-full md:w-1/3">
-                        <label for="dataType" class="block text-sm font-medium text-gray-700 mb-1">Type de données</label>
-                        <select id="dataType" class="block w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="interventions">Interventions</option>
-                            <option value="admins">Administrateurs</option>
-                            <option value="technicians">Techniciens</option>
-                            <option value="users">Utilisateurs</option>
-                        </select>
-                    </div>
+                <!-- Filtres améliorés -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label for="dataType" class="block text-sm font-medium text-gray-700 mb-2">Type de données</label>
+                            <select id="dataType" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
 
-                    <div class="w-full md:w-1/3">
-                        <label for="timeFrame" class="block text-sm font-medium text-gray-700 mb-1">Période</label>
-                        <select id="timeFrame" class="block w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="all">Toutes les données</option>
-                            <option value="7days">7 derniers jours</option>
-                            <option value="30days">30 derniers jours</option>
-                            <option value="month">Ce mois</option>
-                            <option value="year">Cette année</option>
-                        </select>
-                    </div>
+                                <option value="admins">👑 Administrateurs</option>
+                                <option value="technicians">🔧 Techniciens</option>
+                                <option value="users">👥 Utilisateurs</option>
+                            </select>
+                        </div>
 
-                    <div class="w-full md:w-1/3 flex items-end">
-                        <button id="applyFilters" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow">
-                            Appliquer les filtres
-                        </button>
+                        <div>
+                            <label for="timeFrame" class="block text-sm font-medium text-gray-700 mb-2">Période</label>
+                            <select id="timeFrame" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="all">🗓️ Toutes les données</option>
+                                <option value="7days">📅 7 derniers jours</option>
+                                <option value="30days">📅 30 derniers jours</option>
+                                <option value="month">📅 Ce mois</option>
+                                <option value="year">📅 Cette année</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="divisionFilter" class="block text-sm font-medium text-gray-700 mb-2">Division</label>
+                            <select id="divisionFilter" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="">Toutes les divisions</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="flex items-end">
+                            <button id="applyFilters" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow transition-colors duration-200 flex items-center justify-center gap-2">
+                                <span>🔍</span>
+                                Analyser
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <canvas id="serviceDistributionChart"></canvas>
+                <!-- Indicateur de chargement -->
+                <div id="loadingIndicator" class="hidden text-center py-8">
+                    <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-indigo-500 bg-indigo-100">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Chargement des données...
+                    </div>
+                </div>
+
+                <!-- Message d'erreur -->
+                <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-2">⚠️</span>
+                        <span id="errorText">Une erreur est survenue lors du chargement des données.</span>
+                    </div>
+                </div>
+
+                <!-- Graphique -->
+                <div id="chartContainer">
+                    <canvas id="serviceDistributionChart" style="max-height: 400px;"></canvas>
+                </div>
+
+                <!-- Statistiques résumées -->
+                <div id="chartSummary" class="mt-4 p-4 bg-blue-50 rounded-lg hidden">
+                    <h4 class="font-semibold text-blue-800 mb-2">Résumé</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="text-blue-700">
+                            <span class="font-medium">Total:</span> <span id="totalCount">0</span>
+                        </div>
+                        <div class="text-blue-700">
+                            <span class="font-medium">Maximum:</span> <span id="maxValue">0</span>
+                        </div>
+                        <div class="text-blue-700">
+                            <span class="font-medium">Moyenne:</span> <span id="avgValue">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -131,137 +168,218 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-<!-- Donut Chart -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    fetch('/statistics/interventions/status')
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('statusChart').getContext('2d');
-            const total = data.values.reduce((a, b) => a + b, 0);
-            const percentageLabels = data.labels.map((label, i) => {
-                const percent = ((data.values[i] / total) * 100).toFixed(1);
-                return `${label} (${percent}%)`;
-            });
+    // Graphique des statuts (inchangé)
+    const statusChart = document.getElementById('statusChart').getContext('2d');
+    const total = {{ $statusCounts['en attente'] + $statusCounts['en cours'] + $statusCounts['terminée'] }};
+    const statusData = {
+        labels: ['En attente', 'En cours', 'Terminée'],
+        datasets: [{
+            data: [
+                {{ $statusCounts['en attente'] }},
+                {{ $statusCounts['en cours'] }},
+                {{ $statusCounts['terminée'] }}
+            ],
+            backgroundColor: ['#facc15', '#60a5fa', '#4ade80'],
+            borderColor: '#fff',
+            borderWidth: 2
+        }]
+    };
 
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: percentageLabels,
-                    datasets: [{
-                        label: 'Statuts des interventions',
-                        data: data.values,
-                        backgroundColor: [
-                            'rgba(234, 179, 8, 0.7)',   // En attente
-                            'rgba(59, 130, 246, 0.7)',  // En cours
-                            'rgba(34, 197, 94, 0.7)',   // Résolue
-                            'rgba(239, 68, 68, 0.7)'    // Annulée
-                        ],
-                        borderColor: '#ffffff',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: false,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const value = context.parsed;
-                                    const percent = ((value / total) * 100).toFixed(1);
-                                    return `${context.label}: ${value} (${percent}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        });
-});
-</script>
-
-
-<!-- Users Bar Chart -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const usersCtx = document.getElementById('usersChart').getContext('2d');
-        new Chart(usersCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Utilisateurs', 'Administrateurs', 'Techniciens'],
-                datasets: [{
-                    label: 'Nombre',
-                    data: [{{ $totalUsers }}, {{ $totalAdmins }}, {{ $totalTechnicians }}],
-                    backgroundColor: ['#60a5fa', '#f87171', '#facc15'],
-                    borderColor: ['#3b82f6', '#ef4444', '#eab308'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
+    const statusOptions = {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const value = context.raw;
+                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return `${value} interventions (${percentage}%)`;
                     }
                 }
             }
-        });
+        }
+    };
 
+    new Chart(statusChart, {
+        type: 'doughnut',
+        data: statusData,
+        options: statusOptions
+    });
+
+    // Gestion du graphique de service amélioré
+    document.addEventListener("DOMContentLoaded", function () {
         let serviceChart;
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const chartSummary = document.getElementById('chartSummary');
+
+        function showLoading() {
+            loadingIndicator.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            chartSummary.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            loadingIndicator.classList.add('hidden');
+        }
+
+        function showError(message) {
+            errorMessage.classList.remove('hidden');
+            document.getElementById('errorText').textContent = message;
+        }
+
+        function updateSummary(data) {
+            if (data.values && data.values.length > 0) {
+                const total = data.values.reduce((sum, val) => sum + val, 0);
+                const max = Math.max(...data.values);
+                const avg = (total / data.values.length).toFixed(1);
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('maxValue').textContent = max;
+                document.getElementById('avgValue').textContent = avg;
+                chartSummary.classList.remove('hidden');
+            } else {
+                chartSummary.classList.add('hidden');
+            }
+        }
+
+        function getChartColors(dataType) {
+            const colorSchemes = {
+            
+                admins: {
+                    background: 'rgba(239, 68, 68, 0.6)',
+                    border: 'rgba(239, 68, 68, 1)'
+                },
+                technicians: {
+                    background: 'rgba(234, 179, 8, 0.6)',
+                    border: 'rgba(234, 179, 8, 1)'
+                },
+                users: {
+                    background: 'rgba(34, 197, 94, 0.6)',
+                    border: 'rgba(34, 197, 94, 1)'
+                }
+            };
+            return colorSchemes[dataType] || colorSchemes.interventions;
+        }
 
         function loadServiceChart() {
+            showLoading();
+
             const dataType = document.getElementById('dataType').value;
             const timeFrame = document.getElementById('timeFrame').value;
+            const divisionId = document.getElementById('divisionFilter').value;
 
-            fetch(`/stats/service-distribution?dataType=${dataType}&timeFrame=${timeFrame}`)
-                .then(response => response.json())
+            let url = `/stats/service-distribution?dataType=${dataType}&timeFrame=${timeFrame}`;
+            if (divisionId) {
+                url += `&division_id=${divisionId}`;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur du serveur');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    hideLoading();
+
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+
+                    if (!data.labels || data.labels.length === 0) {
+                        showError('Aucune donnée disponible pour les filtres sélectionnés');
+                        if (serviceChart) {
+                            serviceChart.destroy();
+                            serviceChart = null;
+                        }
+                        return;
+                    }
+
+                    // Détruire l'ancien graphique
                     if (serviceChart) {
                         serviceChart.destroy();
                     }
 
+                    const colors = getChartColors(dataType);
                     const ctx = document.getElementById('serviceDistributionChart').getContext('2d');
+
                     serviceChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: data.labels,
                             datasets: [{
                                 label: data.title,
-                                data: data.values.map(v => Math.round(v)),
-                                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
+                                data: data.values,
+                                backgroundColor: colors.background,
+                                borderColor: colors.border,
+                                borderWidth: 1,
+                                borderRadius: 4
                             }]
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                    borderColor: colors.border,
+                                    borderWidth: 1
+                                }
+                            },
                             scales: {
                                 y: {
                                     beginAtZero: true,
                                     ticks: {
-                                        precision: 0
+                                        precision: 0,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        },
+                                        maxRotation: 45
                                     }
                                 }
                             }
                         }
                     });
+
+                    updateSummary(data);
                 })
                 .catch(error => {
+                    hideLoading();
                     console.error("Erreur de chargement du graphique :", error);
+                    showError('Erreur de connexion. Veuillez réessayer.');
                 });
         }
 
+        // Chargement initial
         loadServiceChart();
+
+        // Event listener pour le bouton
         document.getElementById('applyFilters').addEventListener('click', function (e) {
             e.preventDefault();
             loadServiceChart();
+        });
+
+        // Event listeners pour les changements de filtres
+        ['dataType', 'timeFrame', 'divisionFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('change', loadServiceChart);
         });
     });
 </script>

@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TypeIntervention;
 use App\Models\Rapport;
+use App\Models\DetailsIntervention;
+
+use App\Http\Controllers\TechnicianController;
 
 
 class InterventionController extends Controller
@@ -48,157 +51,193 @@ class InterventionController extends Controller
 }
 
     public function adminIndex()
-{
-    $interventions = Intervention::with('user')->get();
-    $techniciens = User::where('profile_id', 2)->get(); // Sélectionne les techniciens
-
-    return view('admin.gestionsinterventions', compact('interventions', 'techniciens'));
-}
-
-
-
-
-    public function userIndex()
     {
-        $interventions = Intervention::where('user_id', Auth::id())->get();
-        return view('user.gestionsinterventions', compact('interventions'));
+        $interventions = Intervention::with('user')->get();
+        $techniciens = User::where('profile_id', 2)->get();
+        $typesIntervention = TypeIntervention::all(); // ✅ ajouter cette ligne
+
+        return view('admin.gestionsinterventions', compact('interventions', 'techniciens', 'typesIntervention'));
     }
 
-    public function create()
-    {
-        $types = TypeIntervention::all();
-        return view('user.createintervention', compact('types'));
-    }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'titre' => 'required|string|max:255',
-            'type_intervention_id' => 'required|exists:type_interventions,id',
-            'description' => 'required|string',
-        ]);
-        
-        Intervention::create([
-            'titre' => $request->titre,
-            'type_intervention_id' => $request->type_intervention_id,
-            'description' => $request->description,
-            'user_id' => auth()->id(),
-            'status' => 'En attente',
-        ]);
-        
-        return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention ajoutée.');
-    }
 
-    public function edit($id)
-    {
-        $intervention = Intervention::findOrFail($id);
-        return view('user.editintervention', compact('intervention'));
-    }
 
-    public function update(Request $request, $id)
-{
-    // Trouver l'intervention
-    $intervention = Intervention::findOrFail($id);
+        public function userIndex()
+        {
+            $interventions = Intervention::where('user_id', Auth::id())->get();
+            return view('user.gestionsinterventions', compact('interventions'));
+        }
 
-    // Vérifier si la réouverture est demandée
-    if ($request->has('reopen')) {
-        // Enregistrer l'action de réouverture
-        $intervention->historiques()->create([
-            'action' => 'Intervention réouverte',
-            'user_id' => auth()->id(),
-            'created_at' => now()
-        ]);
-    }
+        public function create()
+        {
+            $types = TypeIntervention::all();
+            return view('user.createintervention', compact('types'));
+        }
 
-    // Mettre à jour les informations du rapport
-    $rapport = $intervention->rapport;
-    $rapport->update([
-        'date_traitement' => $request->input('date_traitement'),
-        'contenu' => $request->input('contenu'),
-        'technicien_id' => auth()->id(),
-    ]);
 
-    // Si d'autres champs sont modifiés dans le rapport
-    if ($request->has('taches')) {
-        foreach ($request->input('taches') as $taskId) {
-            $task = Task::find($taskId);
-            // Vous pouvez mettre à jour les tâches si nécessaire
-            $task->update([
-                'status' => 'Complété',
-                'updated_at' => now(),
+
+        public function store(Request $request)
+        {
+            $request->validate([
+                'titre' => 'required|string|max:255',
+                'description' => 'required|string',
             ]);
-        }
-    }
 
-    // Enregistrer un historique des changements si nécessaire
-    $intervention->historiques()->create([
-        'action' => 'Modification de l\'intervention',
-        'user_id' => auth()->id(),
-        'created_at' => now()
+            // Utiliser l'ID du type "Non spécifié" (ici on suppose que l'ID de ce type est 9)
+            $typeInterventionId = 9; // ID du type "Non spécifié"
+
+            // Création de l'intervention avec `type_intervention_id` = 9 (Non spécifié)
+            $intervention = Intervention::create([
+                'titre' => $request->titre,
+                'type_intervention_id' => $typeInterventionId, // ID du type "Non spécifié"
+                'description' => $request->description,
+                'user_id' => auth()->id(),
+                'status' => 'En attente',
+            ]);
+
+            return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention ajoutée.');
+        }
+
+
+
+        public function update_intervention_user(Request $request, $id)
+        {
+            $intervention = Intervention::findOrFail($id);
+
+            if (in_array($intervention->status, ['En attente', 'En cours'])) {
+                $request->validate([
+                    'titre' => 'required|string|max:255',
+                    'description' => 'required|string',
+                ]);
+
+                $intervention->update([
+                    'titre' => $request->titre,
+                    'description' => $request->description,
+                ]);
+
+                return back()->with('success', 'Intervention mise à jour avec succès.');
+            }
+
+            return back()->with('error', 'Modification non autorisée.');
+        }
+
+        public function destroy_intervention_user($id)
+        {
+            $intervention = Intervention::findOrFail($id);
+
+            if ($intervention->status == 'En attente') {
+                $intervention->delete();
+                return redirect()->back()->with('success', 'Intervention supprimée avec succès.');
+            }
+
+            return redirect()->back()->with('error', 'Suppression non autorisée.');
+        }
+
+
+
+        public function assignTechnicians(Request $request)
+        {
+            try {
+                $validated = $request->validate([
+                    'intervention_id' => 'required|exists:interventions,id',
+                    'technicien_ids' => 'required|array|min:1',
+                    'technicien_ids.*' => [
+                        'exists:users,id',
+                        function ($attribute, $value, $fail) {
+                            $user = \App\Models\User::with('profile')->find($value);
+
+                            if (!$user) {
+                                $fail('L\'utilisateur sélectionné n\'existe pas.');
+                                return;
+                            }
+
+                            if (!$user->profile) {
+                                $fail('L\'utilisateur '.$user->name.' n\'a pas de profil associé.');
+                                return;
+                            }
+
+                            if ($user->profile->id !== 2) { // 2 = ID du profil technicien
+                                $fail('L\'utilisateur '.$user->name.' n\'est pas un technicien (Profil ID: '.$user->profile->id.')');
+                            }
+                        }
+                    ]
+                ]);
+
+                // Simulation seulement - pas de création réelle
+                $intervention = Intervention::find($validated['intervention_id']);
+
+                // Vérification statut
+                if ($intervention->status !== 'En attente') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Simulation: L\'intervention doit être en statut "En attente" pour assignation'
+                    ]);
+                }
+
+                // Vérification des techniciens déjà assignés
+                $existing = $intervention->techniciens()
+                    ->whereIn('users.id', $validated['technicien_ids'])
+                    ->count();
+
+                if ($existing > 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Simulation: '.$existing.' technicien(s) sont déjà assignés à cette intervention'
+                    ]);
+                }
+
+                // Si tout est valide
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Simulation: Validation réussie pour '.count($validated['technicien_ids']).' technicien(s)',
+                    'details' => [
+                        'intervention_id' => $intervention->id,
+                        'current_status' => $intervention->status,
+                        'techniciens_count' => count($validated['technicien_ids']),
+                        'would_change_status_to' => 'En cours'
+                    ]
+                ]);
+
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+        }
+        public function assignTechnicianForm($id)
+        {
+            $intervention = Intervention::findOrFail($id);
+            $technicians = User::where('profile_id', 2)->get();
+
+            return view('admin.assignTechnician', compact('intervention', 'technicians'));
+        }
+
+
+public function assignTechnician(Request $request)
+{
+    $request->validate([
+        'intervention_id' => 'required|exists:interventions,id',
+        'technicien_id' => 'required|exists:users,id',
+        'type_intervention_id' => 'required|exists:type_interventions,id',
     ]);
 
-    return redirect()->route('interventions.show', ['id' => $id]);
+    $intervention = Intervention::findOrFail($request->intervention_id);
+
+    // Créer une nouvelle entrée dans details_interventions
+    $detailsIntervention = $intervention->techniciens()->attach($request->technicien_id, [
+        'type_intervention_id' => $request->type_intervention_id,
+        'status' => 'En cours',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Mettre à jour le statut global de l'intervention
+    $intervention->update(['status' => 'En cours']);
+
+    return response()->json(['success' => true, 'message' => 'Technicien attribué avec succès.']);
 }
-
-    public function show($id)
-    {
-        $intervention = Intervention::with(['rapport', 'taches', 'historiques.user'])->findOrFail($id);
-    
-        // Récupérer les événements de réouverture dans l'ordre chronologique
-        $reouvertures = $intervention->historiques()
-            ->where('action', 'Intervention réouverte')
-            ->orderBy('created_at', 'asc')
-            ->get();
-    
-        // Récupérer la dernière réouverture si elle existe
-        $lastReouverture = $reouvertures->last();
-    
-        // Détecter si l'intervention a été réouverte
-        $isReopened = $lastReouverture !== null;
-    
-        // Si l'intervention est réouverte, conserver les anciennes données du rapport dans la session
-        if ($isReopened) {
-            session(['ancien_contenu_rapport' => $intervention->rapport->contenu]);
-            session(['date_reouverture' => $lastReouverture->created_at]);
-        }
-    
-        return view('interventions.show', compact('intervention', 'reouvertures', 'lastReouverture', 'isReopened'));
-    }
-    
-
-
-   
-
-    public function destroy($id)
-    {
-        $intervention = Intervention::findOrFail($id);
-        $intervention->delete();
-
-        return redirect()->route('user.gestionsinterventions')->with('success', 'Intervention supprimée.');
-    }
-
-    public function assignTechnicianForm($id)
-    {
-        $intervention = Intervention::findOrFail($id);
-        $technicians = User::where('profile_id', 2)->get();
-
-        return view('admin.assignTechnician', compact('intervention', 'technicians'));
-    }
-
-    public function assignTechnician(Request $request)
-    {
-        $request->validate([
-            'intervention_id' => 'required|exists:interventions,id',
-            'technicien_id' => 'required|exists:users,id',
-        ]);
-
-        $intervention = Intervention::findOrFail($request->intervention_id);
-        $intervention->technicien_id = $request->technicien_id;
-        $intervention->status = 'En cours';
-        $intervention->save();
- 
-        return redirect()->back()->with('success', 'Technicien attribué avec succès.');
-    }
 
 public function cancelTechnician(Request $request)
 {
@@ -209,67 +248,30 @@ public function cancelTechnician(Request $request)
 
     $intervention = Intervention::findOrFail($request->intervention_id);
 
-    if ($intervention->status === 'En cours') {
-        $intervention->technicien_id = null; 
-        $intervention->status = 'En attente'; 
-        $intervention->save();
+    // Supprimer la relation dans details_interventions
+    $intervention->techniciens()->detach($request->technicien_id);
+
+    // Vérifier s'il reste des techniciens assignés
+    if ($intervention->techniciens()->count() === 0) {
+        $intervention->update(['status' => 'En attente']);
+    }
 
     return response()->json(['success' => true, 'message' => 'Attribution annulée.']);
 }
-    
-}
+
+
 
 public function cloturer($id)
 {
     // Trouver l'intervention principale
     $intervention = Intervention::findOrFail($id);
+    $intervention->update(['status' => 'Terminé']);
 
-    if ($intervention->status !== 'Terminé') {
-        $intervention->status = 'Terminé';
-        $intervention->save();
-        return redirect()->back()->with('success', 'Intervention clôturée avec succès.');
-    }
+    // Mettre à jour aussi les détails liés à cette intervention
+    DetailsIntervention::where('intervention_id', $id)
+        ->update(['status' => 'Terminé']);
 
-    return redirect()->back()->with('info', 'Cette intervention est déjà terminée.');
-}
-
-
-
-
-
-
-
-
-
-public function showRapport($id)
-{
-    $intervention = Intervention::findOrFail($id);
-
-    if ($intervention->status != 'Terminé') {
-        return response()->json(['error' => 'Rapport non disponible pour cette intervention.']);
-    }
-
-    $rapport = Rapport::with(['technicien', 'taches'])->where('intervention_id', $id)->first();
-
-    if (!$rapport) {
-        return response()->json(['error' => 'Aucun rapport trouvé.']);
-    }
-    $taches = \App\Models\Tache::where('rapport_id', $rapport->id)->pluck('description');
-
-
-    return response()->json([
-        'rapport_id' => $rapport->id,
-        'intervention_id' => $rapport->intervention_id,
-        'date_traitement' => $rapport->created_at->format('d/m/Y H:i'),
-        'technicien_nom' => $rapport->technicien ? $rapport->technicien->name : 'Non défini',
-        'contenu' => $rapport->contenu,
-        'taches' => $rapport->taches->map(function ($tache) {
-            return [
-                'id' => $tache->id,
-                'description' => $tache->description
-            ];
-        })
-    ]);
+    return back()->with('success', 'Intervention clôturée avec succès.');
 }
 public function reouvrir($id)
 {
@@ -297,7 +299,9 @@ public function interventionsPlus()
     return view('interventions.interventionsplus', compact('interventions'));
 }
 
-}
+
+
+
 
     public function update(Request $request, $id)
     {
@@ -306,7 +310,7 @@ public function interventionsPlus()
                 'type_intervention_id' => 'required|exists:type_interventions,id',
                 'details_technicien' => 'required|string'
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -314,45 +318,45 @@ public function interventionsPlus()
                     'errors' => $validator->errors()
                 ], 422);
             }
-            
+
             $intervention = Intervention::findOrFail($id);
-            
+
             // Log before update
             \Log::info('Before update:', [
                 'id' => $id,
                 'old_type_id' => $intervention->type_intervention_id,
                 'new_type_id' => $request->type_intervention_id
             ]);
-            
+
             $intervention->type_intervention_id = $request->type_intervention_id;
             $intervention->details_technicien = $request->details_technicien;
             $intervention->status = 'En cours';
             $saved = $intervention->save();
-            
+
             // Refresh to get updated relations
             $intervention->refresh();
-            
+
             // Log after update
             \Log::info('After update:', [
                 'id' => $intervention->id,
                 'type_id' => $intervention->type_intervention_id,
                 'saved' => $saved ? 'yes' : 'no'
             ]);
-            
+
             if (!$saved) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Échec de la mise à jour'
                 ], 500);
             }
-            
+
             // Find the type name directly from database to be sure
             $typeName = 'Type inconnu';
             $typeIntervention = TypeIntervention::find($intervention->type_intervention_id);
             if ($typeIntervention) {
                 $typeName = $typeIntervention->type ?? $typeIntervention->nom ?? 'Type inconnu';
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Intervention mise à jour avec succès',
@@ -367,17 +371,18 @@ public function interventionsPlus()
         }
     }
 
-    
+
+
     public function addType(Request $request, $id)
 {
     $request->validate([
         'type_intervention_id' => 'required|exists:type_interventions,id',
         'details_technicien' => 'required|string'
     ]);
-    
+
     // Récupérer l'intervention originale
     $originalIntervention = Intervention::findOrFail($id);
-    
+
     // Créer une nouvelle entrée d'intervention avec le même ID intervention mais un type différent
     $newInterventionType = new Intervention([
         'user_id' => $originalIntervention->user_id,
@@ -388,12 +393,12 @@ public function interventionsPlus()
         'details_technicien' => $request->details_technicien,
         'intervention_id' => $id // Pour lier à l'intervention d'origine
     ]);
-    
+
     $newInterventionType->save();
-    
+
     // Récupérer le nom du type
     $typeName = TypeIntervention::find($request->type_intervention_id)->type ?? 'Type inconnu';
-    
+
     return response()->json([
         'success' => true,
         'message' => 'Nouveau type d\'intervention ajouté avec succès',
@@ -533,7 +538,7 @@ public function assignMultipleTechnicians(Request $request)
 
 public function unassignTechnicians(Request $request)
 {
-    
+
 
     $request->validate([
         'intervention_id' => 'required|exists:interventions,id',
@@ -566,7 +571,7 @@ public function unassignTechnicians(Request $request)
 
     return response()->json([
         'success' => true,
-        'message' => $unassignedCount > 0 
+        'message' => $unassignedCount > 0
             ? ($unassignedCount . " technicien(s) désassigné(s) avec succès." . (count($messages) > 0 ? " " . implode(" ", $messages) : ""))
             : "Aucun technicien désassigné. " . implode(" ", $messages),
     ]);
@@ -595,7 +600,7 @@ public function cancelTechnicians(Request $request)
 
     // Vérifier s'il reste des techniciens assignés
     $remainingTechnicians = DetailsIntervention::where('intervention_id', $interventionId)->count();
-    
+
     // Si plus aucun technicien n'est assigné, mettre à jour le statut
     if ($remainingTechnicians == 0) {
         Intervention::where('id', $interventionId)->update(['status' => 'En attente']);
@@ -681,7 +686,7 @@ public function show($id)
         'premier' => $intervention->details->first()?->toArray()
     ]);
 
-    
+
 
     return view('interventions.details', compact('intervention'));
 }
@@ -712,7 +717,7 @@ public function showHistorique($id)
         'premier' => $historiques->first() ? $historiques->first()->toArray() : null
     ]);
 
-    
+
 
     // Passer les données à la vue
     return view('interventions.details', compact('intervention', 'historiques'));
@@ -727,7 +732,7 @@ public function historiqueIndex()
         ->where('status', 'Terminé')
         ->orderBy('updated_at', 'desc')
         ->get();
-    
+
     return view('interventions.historique', compact('interventions'));
 
 }

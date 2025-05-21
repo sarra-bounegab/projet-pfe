@@ -16,24 +16,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Intervention::observe(InterventionObserver::class); // Enregistrement de l'observateur
-    }
+        DetailsIntervention::observe(DetailsInterventionObserver::class);
+}
+
 public function register()
 {
     $this->app->bind(NotificationService::class, function ($app) {
         return new NotificationService();
     });
-}
-    public function boot(): void
-{
-
-    Intervention::observe(InterventionObserver::class);
-
-
-     DetailsIntervention::observe(DetailsInterventionObserver::class);
-}
-
-    public function register()
-    {
-        //
-    }
-}
+}}

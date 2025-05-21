@@ -455,7 +455,7 @@ Route::get('/aide', function () {
     return view('aide');
 })->name('aide');
 
-HEAD
+
 use App\Http\Controllers\NotificationController;
 
 Route::middleware(['auth'])->group(function () {
@@ -467,7 +467,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/statistics/interventions/status', [StatisticsController::class, 'getInterventionsByStatus']);
 
 require __DIR__.'/auth.php';
-=======
+
+
 
 
 Route::post('/interventions/rapport', [InterventionController::class, 'storeRapport']);
@@ -508,12 +509,12 @@ Route::post('/technicien/update-detail', [TechnicianController::class, 'updateDe
 Route::delete('/technicien/delete-detail/{id}', [TechnicianController::class, 'deleteDetail'])
     ->middleware('auth');
 
-   
 
- 
+
+
 
     Route::resource('interventions', InterventionController::class)->except(['create', 'store', 'destroy']);
-   
+
 
 
 
@@ -563,7 +564,7 @@ Route::get('/interventions/{intervention}/techniciens', [InterventionController:
     ->name('intervention.techniciens');
 
 
- 
+
 
 
     // Solution recommandée (avec Route::resource)
@@ -632,20 +633,20 @@ Route::get('/interventions/{intervention}/details', [InterventionController::cla
     ->name('interventions.details')
     ->middleware('auth');
 
-   
+
 
     Route::get('/interventions/{id}', function ($id) {
         $intervention = Intervention::with(['user', 'details.typeIntervention', 'details.technicien'])->find($id);
-    
+
         if (!$intervention) {
             return response()->json(['error' => 'Intervention introuvable'], 404);
         }
-     
-        
+
+
         return response()->json($intervention);
     });
 
- 
+
 Route::get('/interventions/{id}', [InterventionController::class, 'show']);
 
 Route::get('/technicien/interventions/{intervention}/details', [TechnicianController::class, 'getTechnicalDetails'])
@@ -689,8 +690,8 @@ Route::get('/technician/gestionsinterventions', [InterventionController::class, 
 Route::get('/user/gestionsinterventions', [InterventionController::class, 'index'])
     ->name('user.gestionsinterventions');
 
-  
-    
+
+
 Route::get('/interventions/{id}/historique', [InterventionController::class, 'showHistorique']);
 
 Route::get('/intervention/{id}/print', [InterventionController::class, 'print'])->name('intervention.print');
@@ -713,5 +714,7 @@ Route::get('/historiques', [InterventionController::class, 'historiques'])->name
 
 Route::get('/interventions/plus', [InterventionController::class, 'interventionsPlus'])->name('interventions.plus');
 
+
+Route::get('/stats/debug', [StatisticsController::class, 'debugServiceDistribution']);
+
 require __DIR__.'/auth.php';
->>>>>>> 9cb757b780aed92b354e86f514ea09f8392649e2
