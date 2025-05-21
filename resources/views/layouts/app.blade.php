@@ -53,6 +53,7 @@
             });
         });
     </script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <div class="flex">
         <!-- Sidebar fixée -->
@@ -212,48 +213,56 @@
             @auth
 
             <!-- User profile section in sidebar -->
-            <div class="p-4 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <div class="flex-shrink-0">
-                            <i class="fa-solid fa-user text-gray-500"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</span>
-                        </div>
-                    </div>
-                    <div>
-                       <div class="relative">
-   <x-dropdown align="top" top-12 width="48">
-
-
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center text-gray-500 hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <!-- Profile -->
-                                <x-dropdown-link :href="route('profile.edit')">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-
-                                <!-- Logout -->
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
+@auth
+    <div class="p-4 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="flex-shrink-0">
+                    <i class="fa-solid fa-user text-gray-500"></i>
+                </div>
+                <div>
+                    <span class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</span>
                 </div>
             </div>
-            @endauth
+
+            <div>
+                <x-dropdown align="right" width="48" class="z-50">
+                    <x-slot name="trigger">
+                        <button
+                            type="button"
+                            class="inline-flex items-center text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6l-3-3m0 0l3-3m-3 3h12" />
+                            </svg>
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <!-- Profile -->
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        <!-- Logout -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-dropdown-link
+                                href="#"
+                                onclick="event.preventDefault(); this.closest('form').submit();"
+                            >
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+            </div>
+        </div>
+    </div>
+@endauth
+
         </nav>
 
         <!-- Contenu Principal -->

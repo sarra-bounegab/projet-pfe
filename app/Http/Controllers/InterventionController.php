@@ -27,7 +27,7 @@ class InterventionController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
       $interventions = Intervention::all();
-        $techniciens = User::where('profile_id', 'technicien')->get();
+        $techniciens = User::where('profile_id', 2)->get();
 
     $typesIntervention = TypeIntervention::all();
 
@@ -420,61 +420,6 @@ public function print($id)
 
 
 
-public function testAssignTechnician(Request $request)
-{
-    try {
-        $request->validate([
-            'intervention_id' => 'required|exists:interventions,id',
-            'technicien_id' => 'required|exists:users,id'
-        ]);
-
-        $intervention = Intervention::find($request->intervention_id);
-        $technicien = User::find($request->technicien_id);
-
-        // Vérification si l'utilisateur est bien un technicien (profile_id = 2)
-        if ($technicien->profile_id !== 2) {
-            return response()->json([
-                'success' => false,
-                'message' => 'L\'utilisateur sélectionné n\'est pas un technicien'
-            ]);
-        }
-
-        // Vérification si le technicien est déjà assigné
-        if ($intervention->techniciens()->where('user_id', $technicien->id)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ce technicien est déjà assigné à cette intervention'
-            ]);
-        }
-
-        // Vérification du statut
-        if ($intervention->status !== 'En attente') {
-            return response()->json([
-                'success' => false,
-                'message' => 'L\'intervention doit être en statut "En attente"'
-            ]);
-        }
-
-        // Si tout est valide
-        return response()->json([
-            'success' => true,
-            'message' => 'Test réussi: Le technicien peut être assigné',
-            'data' => [
-                'intervention' => $intervention->id,
-                'technicien' => $technicien->id
-            ]
-        ]);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Erreur de validation',
-            'errors' => $e->errors()
-        ], 422);
-    }
-}
-
-
 
 
 
@@ -536,46 +481,6 @@ public function assignMultipleTechnicians(Request $request)
     ]);
 }
 
-public function unassignTechnicians(Request $request)
-{
-
-
-    $request->validate([
-        'intervention_id' => 'required|exists:interventions,id',
-        'technicien_ids' => 'required|array|min:1',
-        'technicien_ids.*' => 'exists:users,id',
-    ]);
-
-    $intervention = Intervention::find($request->intervention_id);
-    $messages = [];
-    $unassignedCount = 0;
-
-    foreach ($request->technicien_ids as $technicienId) {
-        $deleted = DetailsIntervention::where('intervention_id', $intervention->id)
-            ->where('technicien_id', $technicienId)
-            ->delete();
-
-        if ($deleted) {
-            $unassignedCount++;
-        } else {
-            $technicien = User::find($technicienId);
-            $messages[] = "Le technicien {$technicien->name} n'était pas assigné à cette intervention.";
-        }
-    }
-
-    // Si tous les techniciens ont été désassignés, remettre le statut à "En attente"
-    $remainingAssignments = DetailsIntervention::where('intervention_id', $intervention->id)->count();
-    if ($remainingAssignments === 0) {
-        $intervention->update(['status' => 'En attente']);
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => $unassignedCount > 0
-            ? ($unassignedCount . " technicien(s) désassigné(s) avec succès." . (count($messages) > 0 ? " " . implode(" ", $messages) : ""))
-            : "Aucun technicien désassigné. " . implode(" ", $messages),
-    ]);
-}
 
 
 

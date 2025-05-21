@@ -58,6 +58,7 @@
                                             })) }}">
                                         Annuler assignation
                                     </button>
+                                    
                                 @endif
                             </div>
                         </td>
@@ -101,7 +102,7 @@
 
 <!-- Modal pour les détails de l'intervention -->
 <div id="interventionDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <!-- ... (le contenu reste identique) ... -->
+   
 </div>
 
 <!-- Modal d'assignation multiple (version qui fonctionne) -->
@@ -207,6 +208,7 @@ function setupAssignTechnicians() {
         const checkedBoxes = this.querySelectorAll('input[name="technicien_ids[]"]:checked');
         if (checkedBoxes.length === 0) {
             e.preventDefault();
+            
             document.getElementById('assign_techniciens_error').classList.remove('hidden');
         } else {
             document.getElementById('assign_techniciens_error').classList.add('hidden');
@@ -286,7 +288,7 @@ function updateStatusColor(status) {
 }
 
 function openInterventionDetailsModal(interventionId) {
-    // ... (le contenu reste identique) ...
+    
 }
 
 function closeInterventionDetailsModal() {
