@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 class DetailsIntervention extends Model
 {
-    
+
        // Dans app/Models/DetailsIntervention.php
        protected $fillable = [
         'intervention_id',
@@ -17,18 +17,18 @@ class DetailsIntervention extends Model
         'date',
         'status',
     ];
-    
+
 
     public function intervention(): BelongsTo
     {
         return $this->belongsTo(Intervention::class);
     }
 
-    
 
-   
 
- 
+
+
+
 // App\Models\DetailsIntervention.php
 public function typeIntervention()
 {
