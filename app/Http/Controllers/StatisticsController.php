@@ -174,4 +174,5 @@ class StatisticsController extends Controller
             'type' => 'users'
         ]);
     }
-}
+} 
+
