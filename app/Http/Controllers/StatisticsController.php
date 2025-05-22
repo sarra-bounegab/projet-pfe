@@ -19,4 +19,5 @@ class StatisticsController extends Controller
 
         return view('admin.statistics', compact('totalUsers', 'totalAdmins', 'totalTechnicians', 'totalInterventions'));
     }
-}
+} 
+
