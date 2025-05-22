@@ -456,20 +456,6 @@ Route::get('/aide', function () {
 })->name('aide');
 
 
-use App\Http\Controllers\NotificationController;
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::get('/notifications/{id}', [NotificationController::class, 'showDetails'])->name('notifications.showDetails');
-});
-
-Route::get('/statistics/interventions/status', [StatisticsController::class, 'getInterventionsByStatus']);
-
-require __DIR__.'/auth.php';
-
-
-
 
 Route::post('/interventions/rapport', [InterventionController::class, 'storeRapport']);
 
@@ -712,9 +698,71 @@ Route::get('/historiques', [InterventionController::class, 'historiques'])->name
 
 
 
-Route::get('/interventions/plus', [InterventionController::class, 'interventionsPlus'])->name('interventions.plus');
+
+Route::get('/interventions', [InterventionController::class, 'index'])->name('interventions.index');
+Route::post('/interventions/clear-history', [InterventionController::class, 'clearHistory'])
+     ->name('interventions.clearHistory');
 
 
-Route::get('/stats/debug', [StatisticsController::class, 'debugServiceDistribution']);
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationPreferenceController;
 
+// Routes protégées par authentification
+Route::middleware(['auth'])->group(function () {
+
+    // Page principale des notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])
+         ->name('notifications.index');
+
+    // Routes API pour les notifications
+    Route::prefix('notifications')->group(function () {
+        // Marquer comme lue
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
+             ->name('notifications.markAsRead');
+
+        // Marquer toutes comme lues
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
+             ->name('notifications.markAllAsRead');
+
+        // Supprimer une notification
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])
+             ->name('notifications.destroy');
+
+        // Compter les non lues
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])
+             ->name('notifications.unreadCount');
+
+        // Notifications récentes (pour menu dropdown)
+        Route::get('/recent', [NotificationController::class, 'getRecent'])
+             ->name('notifications.recent');
+    });
+
+    // Préférences de notifications
+    Route::prefix('notification-preferences')->group(function () {
+        Route::get('/', [NotificationPreferenceController::class, 'index'])
+             ->name('notification-preferences.index');
+        Route::put('/', [NotificationPreferenceController::class, 'update'])
+             ->name('notification-preferences.update');
+        Route::post('/toggle/{type}', [NotificationPreferenceController::class, 'toggle'])
+             ->name('notification-preferences.toggle');
+    });
+});
+
+// Routes admin (protégées par auth + middleware admin)
+Route::middleware(['auth', 'can:admin'])->prefix('admin/notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'adminIndex'])
+         ->name('admin.notifications.index');
+    Route::post('/broadcast', [NotificationController::class, 'broadcast'])
+         ->name('admin.notifications.broadcast');
+    Route::delete('/cleanup', [NotificationController::class, 'cleanup'])
+         ->name('admin.notifications.cleanup');
+});
+
+// Gestion des erreurs spécifiques
+Route::fallback(function () {
+    if (request()->is('notifications/*')) {
+        return response()->view('errors.404-notifications', [], 404);
+    }
+    abort(404);
+});
 require __DIR__.'/auth.php';

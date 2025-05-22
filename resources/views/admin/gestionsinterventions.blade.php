@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="bg-white shadow-md sm:rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4">Gestion des Interventions Globale</h2>
+    <h2 class="text-2xl font-semibold mb-4">Gestion des Interventions (En cours et En attente)</h2>
 
     @if(session('success'))
         <div class="mb-4 p-3 text-green-800 bg-green-200 rounded-lg">
@@ -18,7 +18,7 @@
                     <th class="border px-4 py-2">ID</th>
                     <th class="border px-4 py-2">Utilisateur</th>
                     <th class="border px-4 py-2">Date</th>
-                    <th class="border px-4 py-2">Type d'intervention</th>
+
                     <th class="border px-4 py-2">Statut</th>
                     <th class="border px-4 py-2">Actions</th>
                     <th class="border px-4 py-2">Techniciens assignés</th>
@@ -27,26 +27,23 @@
             </thead>
             <tbody>
                 @foreach($interventions as $intervention)
+                    @if($intervention->status !== 'Terminé')
                     <tr class="border-b border-gray-200 hover:bg-gray-100 transition">
                         <td class="border px-4 py-2">{{ $intervention->id }}</td>
                         <td class="border px-4 py-2">{{ $intervention->user->name }}</td>
                         <td class="border px-4 py-2">{{ $intervention->created_at->format('d/m/Y') }}</td>
-                        <td class="border px-4 py-2">
-                            {{ $intervention->typeIntervention ? $intervention->typeIntervention->type : 'Non défini' }}
-                        </td>
+
                         <td class="border px-4 py-2 status-cell">
                             @if ($intervention->status == 'En attente')
                                 <span class="px-2 py-1 bg-yellow-500 text-white rounded">En attente</span>
                             @elseif ($intervention->status == 'En cours')
                                 <span class="px-2 py-1 bg-blue-500 text-white rounded">En cours</span>
-                            @elseif ($intervention->status == 'Terminé')
-                                <span class="px-2 py-1 bg-green-500 text-white rounded">Terminé</span>
                             @endif
                         </td>
                         <td class="border px-4 py-2 action-cell">
                             <div class="flex flex-wrap gap-2">
                                 @if ($intervention->status == 'En attente')
-                                    <button class="assign-btn px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 transition" 
+                                    <button class="assign-btn px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 transition"
                                             data-intervention-id="{{ $intervention->id }}">
                                         Attribuer
                                     </button>
@@ -58,7 +55,6 @@
                                             })) }}">
                                         Annuler assignation
                                     </button>
-                                    
                                 @endif
                             </div>
                         </td>
@@ -80,32 +76,17 @@
                                 <a href="{{ route('interventions.show', $intervention->id) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i> Détails
                                 </a>
-
-                                @if ($intervention->status === 'Terminé')
-                                    <form action="{{ route('intervention.reouvrir', $intervention->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick="return confirm('Voulez-vous vraiment réouvrir cette intervention ?')">
-                                            Réouvrir
-                                        </button>
-                                    </form>
-                                @endif
                             </div>
                         </td>
                     </tr>
+                    @endif
                 @endforeach
             </tbody>
         </table>
     </div>
 </div>
 
-
-
-<!-- Modal pour les détails de l'intervention -->
-<div id="interventionDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-   
-</div>
-
-<!-- Modal d'assignation multiple (version qui fonctionne) -->
+<!-- Modal d'assignation multiple -->
 <div id="assignTechniciansModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
     <div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
         <div class="flex justify-between items-center mb-4">
@@ -116,11 +97,11 @@
                 </svg>
             </button>
         </div>
-        
+
         <form id="assignTechniciansForm" method="POST" action="{{ route('assign.multiple.technicians') }}">
             @csrf
             <input type="hidden" id="assign_intervention_id" name="intervention_id">
-            
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner des techniciens :</label>
                 <div class="max-h-60 overflow-y-auto border rounded p-2">
@@ -148,7 +129,7 @@
 
 <!-- Modal pour annulation sélective des techniciens -->
 <div id="cancelTechniciansModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-<div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
+    <div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">Annuler l'assignation des techniciens</h2>
             <button id="closeCancelModal" class="text-gray-500 hover:text-gray-700">
@@ -157,11 +138,11 @@
                 </svg>
             </button>
         </div>
-        
+
         <form id="cancelTechniciansForm" method="POST" action="{{ route('cancel.technicians') }}">
             @csrf
             <input type="hidden" id="cancel_intervention_id" name="intervention_id">
-            
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner les techniciens à désassigner :</label>
                 <div class="max-h-60 overflow-y-auto border rounded p-2" id="techniciensContainer">
@@ -189,26 +170,25 @@ function setupAssignTechnicians() {
     document.querySelectorAll('.assign-btn').forEach(button => {
         button.addEventListener('click', function() {
             const interventionId = this.getAttribute('data-intervention-id');
-            
+
             // Remplir le formulaire
             document.getElementById('assign_intervention_id').value = interventionId;
-            
+
             // Décocher toutes les cases
             document.querySelectorAll('#assignTechniciansForm input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // Afficher le modal
             document.getElementById('assignTechniciansModal').classList.remove('hidden');
         });
     });
-    
+
     // Validation du formulaire d'assignation
     document.getElementById('assignTechniciansForm').addEventListener('submit', function(e) {
         const checkedBoxes = this.querySelectorAll('input[name="technicien_ids[]"]:checked');
         if (checkedBoxes.length === 0) {
             e.preventDefault();
-            
             document.getElementById('assign_techniciens_error').classList.remove('hidden');
         } else {
             document.getElementById('assign_techniciens_error').classList.add('hidden');
@@ -223,19 +203,19 @@ function setupCancelTechnicians() {
         button.addEventListener('click', function() {
             const interventionId = this.getAttribute('data-intervention-id');
             const techniciens = JSON.parse(this.getAttribute('data-techniciens'));
-            
+
             // Remplir le formulaire
             document.getElementById('cancel_intervention_id').value = interventionId;
-            
+
             // Charger les techniciens
             const container = document.getElementById('techniciensContainer');
             container.innerHTML = '';
-            
+
             if (techniciens.length > 0) {
                 techniciens.forEach(tech => {
                     container.innerHTML += `
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" name="technicien_ids[]" id="cancel_tech_${tech.id}" 
+                            <input type="checkbox" name="technicien_ids[]" id="cancel_tech_${tech.id}"
                                    value="${tech.id}" class="mr-2" checked>
                             <label for="cancel_tech_${tech.id}" class="text-sm">
                                 ${tech.name}
@@ -246,21 +226,21 @@ function setupCancelTechnicians() {
             } else {
                 container.innerHTML = '<p class="text-gray-500">Aucun technicien assigné</p>';
             }
-            
+
             // Afficher le modal
             document.getElementById('cancelTechniciansModal').classList.remove('hidden');
         });
     });
-    
+
     // Fermer le modal
     document.getElementById('closeCancelModal').addEventListener('click', function() {
         document.getElementById('cancelTechniciansModal').classList.add('hidden');
     });
-    
+
     document.getElementById('cancelCancelModal').addEventListener('click', function() {
         document.getElementById('cancelTechniciansModal').classList.add('hidden');
     });
-    
+
     // Validation du formulaire
     document.getElementById('cancelTechniciansForm').addEventListener('submit', function(e) {
         const checkedBoxes = this.querySelectorAll('input[name="technicien_ids[]"]:checked');
@@ -269,34 +249,6 @@ function setupCancelTechnicians() {
             document.getElementById('cancel_techniciens_error').classList.remove('hidden');
         }
     });
-}
-
-// Fonctions pour la gestion des détails de l'intervention
-function updateStatusColor(status) {
-    const statusElement = document.getElementById("detail_intervention_status");
-    statusElement.className = "px-3 py-1 text-sm font-semibold rounded-md";
-    
-    if (status === "En attente") {
-        statusElement.classList.add("bg-yellow-500", "text-white");
-    } else if (status === "En cours") {
-        statusElement.classList.add("bg-blue-500", "text-white");
-    } else if (status === "Terminé") {
-        statusElement.classList.add("bg-green-500", "text-white");
-    }
-
-    statusElement.textContent = status;
-}
-
-function openInterventionDetailsModal(interventionId) {
-    
-}
-
-function closeInterventionDetailsModal() {
-    document.getElementById('interventionDetailsModal').classList.add('hidden');
-}
-
-function printIntervention() {
-    // ... (le contenu reste identique) ...
 }
 
 // Initialisation
@@ -309,10 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
         "responsive": true
     });
 
-    // Configurer les fonctionnalités
+
     setupAssignTechnicians();
     setupCancelTechnicians();
 });
-
 </script>
 @endsection

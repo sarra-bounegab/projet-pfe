@@ -1,190 +1,408 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="bg-white shadow-md sm:rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold text-gray-800">Mes Notifications</h2>
-            <form method="POST" action="{{ route('notifications.markAllAsRead') }}">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition">
-                    Tout marquer comme lu
-                </button>
-            </form>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body class="bg-gray-50">
+    <!-- Notifications Page -->
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-bell text-gray-600 text-xl mr-3"></i>
+                        <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+                        <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800" id="total-unread">
+                            {{ $unreadCount }} non lues
+                        </span>
+                    </div>
+                    <button onclick="markAllAsRead()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-check-double mr-2"></i>
+                        Marquer toutes comme lues
+                    </button>
+                </div>
+            </div>
         </div>
 
-        @if(session('success'))
-            <div class="mb-4 p-3 text-green-800 bg-green-200 rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
+        <!-- Notifications List -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                <!-- Filter Tabs -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex -mb-px">
+                        <button onclick="filterNotifications('all')" class="filter-tab active px-6 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-500 focus:outline-none">
+                            Toutes <span class="ml-1 text-gray-500">({{ $notifications->total() }})</span>
+                        </button>
+                        <button onclick="filterNotifications('unread')" class="filter-tab px-6 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 focus:outline-none">
+                            Non lues <span class="ml-1 text-red-500">({{ $unreadCount }})</span>
+                        </button>
+                        <button onclick="filterNotifications('read')" class="filter-tab px-6 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 focus:outline-none">
+                            Lues <span class="ml-1 text-gray-500">({{ $notifications->total() - $unreadCount }})</span>
+                        </button>
+                    </nav>
+                </div>
 
-        @if ($notifications->count())
-            <div class="space-y-2">
-                @foreach ($notifications as $notification)
-                    <a href="{{ route('notifications.showDetails', $notification->id) }}"
-                       class="block border rounded-lg hover:bg-gray-50 transition {{ is_null($notification->read_at) ? 'bg-blue-50 border-blue-200' : 'border-gray-200' }}">
-                        <div class="flex justify-between items-center p-4">
-                            <div class="flex items-start space-x-3">
-                                <div class="flex-shrink-0">
-                                    @if(is_null($notification->read_at))
-                                        <span class="inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
-                                    @else
-                                        <span class="inline-flex h-2 w-2 rounded-full bg-gray-300"></span>
-                                    @endif
+                <!-- Notifications -->
+                <div class="divide-y divide-gray-200" id="notifications-container">
+                    @forelse($notifications as $notification)
+                        <div class="notification-item {{ $notification->is_read ? 'hover:bg-gray-50' : 'bg-blue-50 hover:bg-blue-100' }} transition-colors cursor-pointer"
+                             data-read="{{ $notification->is_read ? 'true' : 'false' }}"
+                             data-id="{{ $notification->id }}"
+                             onclick="markAsRead({{ $notification->id }})">
+                            <div class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 {{ $notification->color ?? 'bg-blue-100' }} rounded-full flex items-center justify-center">
+                                            <i class="fas {{ $notification->icon ?? 'fa-bell' }} {{ str_replace('bg-', 'text-', $notification->color ?? 'text-blue-600') }}"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 flex-1 min-w-0">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-medium {{ $notification->is_read ? 'text-gray-700' : 'text-gray-900' }}">
+                                                {{ $notification->title }}
+                                            </p>
+                                            <div class="flex items-center">
+                                                @if(!$notification->is_read)
+                                                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                                                @endif
+                                                <p class="text-xs text-gray-500">{{ $notification->time_ago }}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm {{ $notification->is_read ? 'text-gray-500' : 'text-gray-600' }} mt-1">
+                                            {{ $notification->message }}
+                                        </p>
+                                        @if($notification->sender || $notification->intervention)
+                                            <div class="flex items-center mt-2 text-xs {{ $notification->is_read ? 'text-gray-400' : 'text-gray-500' }}">
+                                                @if($notification->sender)
+                                                    <i class="fas fa-user mr-1"></i>
+                                                    <span>Par {{ $notification->sender->name }}</span>
+                                                @endif
+                                                @if($notification->intervention)
+                                                    <span class="mx-2">•</span>
+                                                    <i class="fas fa-hashtag mr-1"></i>
+                                                    <span>{{ $notification->intervention->reference }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="ml-4 flex-shrink-0">
+                                        <button onclick="deleteNotification({{ $notification->id }}, event)" class="text-gray-400 hover:text-red-500 transition-colors">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="{{ is_null($notification->read_at) ? 'font-medium' : 'font-normal' }} text-gray-800">
-                                        {{ $notification->data['message'] ?? 'Nouvelle notification' }}
-                                    </p>
-                                    @if(isset($notification->data['details']))
-                                        <p class="text-sm text-gray-600 mt-1">{{ $notification->data['details'] }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
-                                @if(isset($notification->data['type']))
-                                    @if($notification->data['type'] == 'intervention')
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-md">Intervention</span>
-                                    @elseif($notification->data['type'] == 'system')
-                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-md">Système</span>
-                                    @elseif($notification->data['type'] == 'alert')
-                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-md">Alerte</span>
-                                    @endif
-                                @endif
                             </div>
                         </div>
-                    </a>
-                @endforeach
-            </div>
-
-            <div class="mt-6">
-                {{ $notifications->links() }}
-            </div>
-        @else
-            <div class="bg-gray-50 p-8 text-center rounded-lg border border-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <p class="text-gray-600 text-lg">Vous n'avez aucune notification pour le moment.</p>
-            </div>
-        @endif
-    </div>
-</div>
-
-<!-- Modal pour les détails de la notification -->
-<div id="notificationDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg border border-gray-200 relative">
-
-        <!-- Bouton de fermeture -->
-        <button type="button" onclick="closeNotificationDetailsModal()"
-                class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-        </button>
-
-        <h3 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Détails de la notification</h3>
-
-        <div class="space-y-4 text-sm text-gray-700">
-            <div id="notification-content" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <!-- Le contenu sera injecté par JavaScript -->
-            </div>
-
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-1">
-                    <span class="font-medium text-gray-900">Date:</span>
+                    @empty
+                        <div class="text-center py-12">
+                            <i class="fas fa-bell-slash text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500 text-lg mb-2">Aucune notification</p>
+                            <p class="text-gray-400">Vous n'avez pas encore de notifications.</p>
+                        </div>
+                    @endforelse
                 </div>
-                <div class="col-span-3">
-                    <span id="notification-date"></span>
-                </div>
-            </div>
 
-            <div id="notification-related-content" class="mt-4 hidden">
-                <div class="font-medium text-gray-900 mb-2">Contenu associé:</div>
-                <div id="notification-related-data" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <!-- Le contenu associé sera injecté par JavaScript -->
+                <!-- Empty State (for filtered results) -->
+                <div id="empty-state" class="hidden text-center py-12">
+                    <i class="fas fa-bell-slash text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-500 text-lg mb-2">Aucune notification trouvée</p>
+                    <p class="text-gray-400">Aucune notification ne correspond à ce filtre.</p>
                 </div>
+
+                <!-- Pagination -->
+                @if($notifications->hasPages())
+                    <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                @if($notifications->onFirstPage())
+                                    <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                        Précédent
+                                    </span>
+                                @else
+                                    <a href="{{ $notifications->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                        Précédent
+                                    </a>
+                                @endif
+
+                                @if($notifications->hasMorePages())
+                                    <a href="{{ $notifications->nextPageUrl() }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                        Suivant
+                                    </a>
+                                @else
+                                    <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                        Suivant
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700 leading-5">
+                                        Affichage de
+                                        <span class="font-medium">{{ $notifications->firstItem() }}</span>
+                                        à
+                                        <span class="font-medium">{{ $notifications->lastItem() }}</span>
+                                        sur
+                                        <span class="font-medium">{{ $notifications->total() }}</span>
+                                        résultats
+                                    </p>
+                                </div>
+                                <div>
+                                    <span class="relative z-0 inline-flex shadow-sm rounded-md">
+                                        {{ $notifications->links() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
-
-        <div class="flex justify-between mt-6">
-            <form id="markAsReadForm" method="POST" class="hidden">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition">
-                    Marquer comme lu
-                </button>
-            </form>
-
-            <button type="button" onclick="closeNotificationDetailsModal()"
-                    class="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-sm transition">
-                Fermer
-            </button>
-
-            <a href="#" id="relatedActionLink" class="hidden px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition">
-                Voir l'élément
-            </a>
-        </div>
     </div>
-</div>
 
-<script>
-    function openNotificationDetailsModal(id) {
-        fetch(`/notifications/${id}/details`)
+    <script>
+        // Configuration CSRF pour les requêtes AJAX
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Fonction pour marquer une notification comme lue
+        function markAsRead(notificationId) {
+            const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+
+            // Si déjà lue, ne rien faire
+            if (notificationElement.getAttribute('data-read') === 'true') {
+                return;
+            }
+
+            fetch(route('notifications.markAsRead', { id: notificationId
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            }))
             .then(response => response.json())
             .then(data => {
-                document.getElementById('notification-content').innerHTML = data.message;
-                document.getElementById('notification-date').textContent = data.created_at;
+                if (data.success) {
+                    // Mettre à jour l'apparence de la notification
+                    notificationElement.setAttribute('data-read', 'true');
+                    notificationElement.className = notificationElement.className
+                        .replace('bg-blue-50 hover:bg-blue-100', 'hover:bg-gray-50');
 
-                // Si la notification n'est pas lue, afficher le bouton pour la marquer comme lue
-                if (!data.read_at) {
-                    document.getElementById('markAsReadForm').classList.remove('hidden');
-                    document.getElementById('markAsReadForm').action = `/notifications/${id}/mark-as-read`;
-                } else {
-                    document.getElementById('markAsReadForm').classList.add('hidden');
-                }
-
-                // Si la notification a un contenu associé
-                if (data.related_data) {
-                    document.getElementById('notification-related-content').classList.remove('hidden');
-                    document.getElementById('notification-related-data').innerHTML = data.related_data;
-
-                    // Si la notification a un lien d'action
-                    if (data.action_url) {
-                        document.getElementById('relatedActionLink').classList.remove('hidden');
-                        document.getElementById('relatedActionLink').href = data.action_url;
-                        document.getElementById('relatedActionLink').textContent = data.action_text || "Voir l'élément";
-                    } else {
-                        document.getElementById('relatedActionLink').classList.add('hidden');
+                    // Supprimer le point bleu
+                    const blueDot = notificationElement.querySelector('.w-2.h-2.bg-blue-500');
+                    if (blueDot) {
+                        blueDot.remove();
                     }
-                } else {
-                    document.getElementById('notification-related-content').classList.add('hidden');
-                    document.getElementById('relatedActionLink').classList.add('hidden');
-                }
 
-                // Afficher le modal
-                document.getElementById('notificationDetailsModal').classList.remove('hidden');
+                    // Mettre à jour les couleurs du texte
+                    const title = notificationElement.querySelector('.text-gray-900');
+                    if (title) {
+                        title.className = title.className.replace('text-gray-900', 'text-gray-700');
+                    }
+
+                    const message = notificationElement.querySelector('.text-gray-600');
+                    if (message) {
+                        message.className = message.className.replace('text-gray-600', 'text-gray-500');
+                    }
+
+                    const details = notificationElement.querySelector('.text-gray-500');
+                    if (details) {
+                        details.className = details.className.replace('text-gray-500', 'text-gray-400');
+                    }
+
+                    // Mettre à jour le compteur
+                    updateUnreadCount();
+                }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert('Une erreur est survenue lors du chargement des détails de la notification.');
+                alert('Erreur lors de la mise à jour de la notification');
             });
-    }
-
-    function closeNotificationDetailsModal() {
-        document.getElementById('notificationDetailsModal').classList.add('hidden');
-    }
-
-    // Ajouter cet événement listener pour charger les détails lors du clic direct sur une notification
-    document.addEventListener('DOMContentLoaded', function() {
-        // Si l'URL contient un ID de notification (par exemple: ?notification=123)
-        const urlParams = new URLSearchParams(window.location.search);
-        const notificationId = urlParams.get('notification');
-
-        if (notificationId) {
-            openNotificationDetailsModal(notificationId);
         }
-    });
-</script>
-@endsection
+
+        // Fonction pour marquer toutes les notifications comme lues
+        function markAllAsRead() {
+            fetch('/notifications/mark-all-as-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mettre à jour toutes les notifications non lues
+                    document.querySelectorAll('[data-read="false"]').forEach(element => {
+                        element.setAttribute('data-read', 'true');
+                        element.className = element.className
+                            .replace('bg-blue-50 hover:bg-blue-100', 'hover:bg-gray-50');
+
+                        // Supprimer le point bleu
+                        const blueDot = element.querySelector('.w-2.h-2.bg-blue-500');
+                        if (blueDot) {
+                            blueDot.remove();
+                        }
+
+                        // Mettre à jour les couleurs du texte
+                        const title = element.querySelector('.text-gray-900');
+                        if (title) {
+                            title.className = title.className.replace('text-gray-900', 'text-gray-700');
+                        }
+
+                        const message = element.querySelector('.text-gray-600');
+                        if (message) {
+                            message.className = message.className.replace('text-gray-600', 'text-gray-500');
+                        }
+
+                        const details = element.querySelector('.text-gray-500');
+                        if (details) {
+                            details.className = details.className.replace('text-gray-500', 'text-gray-400');
+                        }
+                    });
+
+                    // Mettre à jour le compteur
+                    updateUnreadCount();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour des notifications');
+            });
+        }
+
+        // Fonction pour supprimer une notification
+        function deleteNotification(notificationId, event) {
+            event.stopPropagation(); // Empêcher le clic sur la notification parent
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette notification ?')) {
+                return;
+            }
+
+            fetch(`/notifications/${notificationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Supprimer l'élément du DOM avec animation
+                    const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                    notificationElement.style.transition = 'opacity 0.3s ease-out';
+                    notificationElement.style.opacity = '0';
+
+                    setTimeout(() => {
+                        notificationElement.remove();
+
+                        // Vérifier s'il reste des notifications
+                        const remainingNotifications = document.querySelectorAll('.notification-item');
+                        if (remainingNotifications.length === 0) {
+                            document.getElementById('empty-state').classList.remove('hidden');
+                        }
+
+                        // Mettre à jour le compteur
+                        updateUnreadCount();
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la suppression de la notification');
+            });
+        }
+
+        // Fonction pour filtrer les notifications
+        function filterNotifications(filter) {
+            const notifications = document.querySelectorAll('.notification-item');
+            const emptyState = document.getElementById('empty-state');
+            let visibleCount = 0;
+
+            // Mettre à jour les onglets
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active', 'text-blue-600', 'border-blue-500');
+                tab.classList.add('text-gray-500', 'border-transparent');
+            });
+
+            event.target.classList.add('active', 'text-blue-600', 'border-blue-500');
+            event.target.classList.remove('text-gray-500', 'border-transparent');
+
+            notifications.forEach(notification => {
+                const isRead = notification.getAttribute('data-read') === 'true';
+                let shouldShow = false;
+
+                switch(filter) {
+                    case 'all':
+                        shouldShow = true;
+                        break;
+                    case 'unread':
+                        shouldShow = !isRead;
+                        break;
+                    case 'read':
+                        shouldShow = isRead;
+                        break;
+                }
+
+                if (shouldShow) {
+                    notification.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    notification.style.display = 'none';
+                }
+            });
+
+            // Afficher l'état vide si aucune notification visible
+            if (visibleCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        // Fonction pour mettre à jour le compteur de notifications non lues
+        function updateUnreadCount() {
+            fetch('/notifications/unread-count')
+                .then(response => response.json())
+                .then(data => {
+                    const totalUnreadElement = document.getElementById('total-unread');
+                    const count = data.count;
+
+                    if (count === 0) {
+                        totalUnreadElement.textContent = 'Toutes lues';
+                        totalUnreadElement.className = 'ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                    } else {
+                        totalUnreadElement.textContent = `${count} non lues`;
+                        totalUnreadElement.className = 'ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+                    }
+
+                    // Mettre à jour les compteurs dans les onglets
+                    const unreadTab = document.querySelector('.filter-tab:nth-child(2) span');
+                    const readTab = document.querySelector('.filter-tab:nth-child(3) span');
+                    const allTab = document.querySelector('.filter-tab:nth-child(1) span');
+
+                    if (unreadTab) {
+                        unreadTab.textContent = `(${count})`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la mise à jour du compteur:', error);
+                });
+        }
+
+        // Actualiser le compteur au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUnreadCount();
+        });
+
+
+    </script>
+</body>
+</html>

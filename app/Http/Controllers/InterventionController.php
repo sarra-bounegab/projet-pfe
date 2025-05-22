@@ -19,36 +19,40 @@ use App\Http\Controllers\TechnicianController;
 
 class InterventionController extends Controller
 {
-   public function index()
+ public function index()
 {
-    $user = auth()->user(); // ou Auth::user()
+    $user = auth()->user();
 
-    $interventions = Intervention::with(['user', 'typeIntervention'])
-        ->orderBy('created_at', 'desc')
-        ->get();
-      $interventions = Intervention::all();
-        $techniciens = User::where('profile_id', 2)->get();
+    $query = Intervention::with(['user', 'typeIntervention'])->orderBy('created_at', 'desc');
+ $techniciens = User::where('profile_id', 2)->get();
+    $typesIntervention = TypeIntervention::all();
+    if (request('status') === 'termine') {
+        $query->where('status', 'termine');
+        $interventions = $query->get();
+        $typesIntervention = TypeIntervention::all();
 
+        return view('interventions.terminees', compact('interventions', 'typesIntervention', 'techniciens'));
+    }
+
+    $interventions = $query->get();
+    $techniciens = User::where('profile_id', 2)->get();
     $typesIntervention = TypeIntervention::all();
 
-    // Vérifier les profiles 1 (Admin) et 4 (Autre, si nécessaire)
     if ($user->profile_id == 1 || $user->profile_id == 4) {
         return view('admin.gestionsinterventions', compact('interventions', 'typesIntervention', 'techniciens'));
     }
 
-    // Vérifier le profile 2 (Technicien)
     if ($user->profile_id == 2) {
         return view('technician.gestionsinterventions', compact('interventions', 'typesIntervention'));
     }
 
-    // Vérifier le profile 3 (Utilisateur)
     if ($user->profile_id == 3) {
         return view('user.gestionsinterventions', compact('interventions', 'typesIntervention'));
     }
 
-    // Si aucun profile ne correspond
-    abort(403); // ou rediriger vers une page d'erreur
+    abort(403);
 }
+
 
     public function adminIndex()
     {
@@ -642,18 +646,13 @@ public function historiqueIndex()
 
 }
 
-
-public function story()
+public function indexTerminees()
 {
-    $interventions = Intervention::with(['user:id,name', 'techniciens:id,name', 'typeIntervention:id,type'])
-        ->where('statut', 'terminée') // ou adapte si besoin
-        ->orderBy('created_at', 'desc')
-        ->get();
+    $interventions = Intervention::where('status', 'Terminée')->latest()->get();
 
-    return view('story', compact('interventions'));
-
-
+    return view('interventions.terminees', compact('interventions'));
 }
+
 
 
 

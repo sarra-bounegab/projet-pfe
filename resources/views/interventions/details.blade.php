@@ -17,7 +17,7 @@
                     <div>
                         <strong>Statut:</strong>
                         <span class="inline-block px-3 py-1 rounded-full text-white text-sm font-medium
-                            {{ $intervention->status === 'Terminé' ? 'bg-green-500' : ($intervention->status === 'En cours' ? 'bg-yellow-500' : 'bg-gray-400') }}">
+                            {{ $intervention->status === 'Terminé' ? 'bg-green-500' : ($intervention->status === 'En cours' ? 'bg-blue-500' : 'bg-yellow-400') }}">
                             {{ $intervention->status }}
                         </span>
                     </div>
@@ -40,20 +40,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div><strong>Type:</strong> {{ $detail->type->type ?? 'Non défini' }}</div>
                         <div><strong>Technicien:</strong> {{ $detail->technicien->name ?? 'Non assigné' }}</div>
-                        <div>
-                            <strong>Statut:</strong>
-                            <span class="inline-block bg-gray-500 text-white px-3 py-1 rounded-full text-sm">{{ $detail->status ?? 'N/A' }}</span>
-                        </div>
+
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                         <div>
-                            <strong>Contenu:</strong>
+                            <strong>details-technique:</strong>
                             <p class="text-gray-700">{{ $detail->contenu ?? 'Aucun contenu' }}</p>
                         </div>
-                        <div>
-                            <strong>Description:</strong>
-                            <p class="text-gray-700">{{ $detail->description ?? 'Aucune description' }}</p>
-                        </div>
+
                     </div>
                 </div>
                 @empty
