@@ -495,12 +495,12 @@ Route::post('/technicien/update-detail', [TechnicianController::class, 'updateDe
 Route::delete('/technicien/delete-detail/{id}', [TechnicianController::class, 'deleteDetail'])
     ->middleware('auth');
 
-   
 
- 
+
+
 
     Route::resource('interventions', InterventionController::class)->except(['create', 'store', 'destroy']);
-   
+
 
 
 
@@ -550,7 +550,7 @@ Route::get('/interventions/{intervention}/techniciens', [InterventionController:
     ->name('intervention.techniciens');
 
 
- 
+
 
 
     // Solution recommandée (avec Route::resource)
@@ -619,20 +619,20 @@ Route::get('/interventions/{intervention}/details', [InterventionController::cla
     ->name('interventions.details')
     ->middleware('auth');
 
-   
+
 
     Route::get('/interventions/{id}', function ($id) {
         $intervention = Intervention::with(['user', 'details.typeIntervention', 'details.technicien'])->find($id);
-    
+
         if (!$intervention) {
             return response()->json(['error' => 'Intervention introuvable'], 404);
         }
-     
-        
+
+
         return response()->json($intervention);
     });
 
- 
+
 Route::get('/interventions/{id}', [InterventionController::class, 'show']);
 
 Route::get('/technicien/interventions/{intervention}/details', [TechnicianController::class, 'getTechnicalDetails'])
@@ -676,8 +676,8 @@ Route::get('/technician/gestionsinterventions', [InterventionController::class, 
 Route::get('/user/gestionsinterventions', [InterventionController::class, 'index'])
     ->name('user.gestionsinterventions');
 
-  
-    
+
+
 Route::get('/interventions/{id}/historique', [InterventionController::class, 'showHistorique']);
 
 Route::get('/intervention/{id}/print', [InterventionController::class, 'print'])->name('intervention.print');
@@ -702,4 +702,67 @@ Route::get('/historiques', [InterventionController::class, 'historiques'])->name
 Route::get('/interventions', [InterventionController::class, 'index'])->name('interventions.index');
 Route::post('/interventions/clear-history', [InterventionController::class, 'clearHistory'])
      ->name('interventions.clearHistory');
+
+
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationPreferenceController;
+
+// Routes protégées par authentification
+Route::middleware(['auth'])->group(function () {
+
+    // Page principale des notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])
+         ->name('notifications.index');
+
+    // Routes API pour les notifications
+    Route::prefix('notifications')->group(function () {
+        // Marquer comme lue
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
+             ->name('notifications.markAsRead');
+
+        // Marquer toutes comme lues
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
+             ->name('notifications.markAllAsRead');
+
+        // Supprimer une notification
+        Route::delete('/{id}', [NotificationController::class, 'destroy'])
+             ->name('notifications.destroy');
+
+        // Compter les non lues
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])
+             ->name('notifications.unreadCount');
+
+        // Notifications récentes (pour menu dropdown)
+        Route::get('/recent', [NotificationController::class, 'getRecent'])
+             ->name('notifications.recent');
+    });
+
+    // Préférences de notifications
+    Route::prefix('notification-preferences')->group(function () {
+        Route::get('/', [NotificationPreferenceController::class, 'index'])
+             ->name('notification-preferences.index');
+        Route::put('/', [NotificationPreferenceController::class, 'update'])
+             ->name('notification-preferences.update');
+        Route::post('/toggle/{type}', [NotificationPreferenceController::class, 'toggle'])
+             ->name('notification-preferences.toggle');
+    });
+});
+
+// Routes admin (protégées par auth + middleware admin)
+Route::middleware(['auth', 'can:admin'])->prefix('admin/notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'adminIndex'])
+         ->name('admin.notifications.index');
+    Route::post('/broadcast', [NotificationController::class, 'broadcast'])
+         ->name('admin.notifications.broadcast');
+    Route::delete('/cleanup', [NotificationController::class, 'cleanup'])
+         ->name('admin.notifications.cleanup');
+});
+
+// Gestion des erreurs spécifiques
+Route::fallback(function () {
+    if (request()->is('notifications/*')) {
+        return response()->view('errors.404-notifications', [], 404);
+    }
+    abort(404);
+});
 require __DIR__.'/auth.php';

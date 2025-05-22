@@ -6,10 +6,10 @@
     @csrf
     @method('PUT')
 
-            
+
             <input type="hidden" name="technicien_id" value="{{ Auth::id() }}">
             <input type="hidden" id="intervention_id" name="intervention_id">
-            
+
             <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                 Confirmer l’attribution
             </button>

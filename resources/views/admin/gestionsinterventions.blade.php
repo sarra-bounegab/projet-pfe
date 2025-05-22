@@ -18,7 +18,7 @@
                     <th class="border px-4 py-2">ID</th>
                     <th class="border px-4 py-2">Utilisateur</th>
                     <th class="border px-4 py-2">Date</th>
-                    
+
                     <th class="border px-4 py-2">Statut</th>
                     <th class="border px-4 py-2">Actions</th>
                     <th class="border px-4 py-2">Techniciens assignés</th>
@@ -32,7 +32,7 @@
                         <td class="border px-4 py-2">{{ $intervention->id }}</td>
                         <td class="border px-4 py-2">{{ $intervention->user->name }}</td>
                         <td class="border px-4 py-2">{{ $intervention->created_at->format('d/m/Y') }}</td>
-                       
+
                         <td class="border px-4 py-2 status-cell">
                             @if ($intervention->status == 'En attente')
                                 <span class="px-2 py-1 bg-yellow-500 text-white rounded">En attente</span>
@@ -43,7 +43,7 @@
                         <td class="border px-4 py-2 action-cell">
                             <div class="flex flex-wrap gap-2">
                                 @if ($intervention->status == 'En attente')
-                                    <button class="assign-btn px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 transition" 
+                                    <button class="assign-btn px-3 py-1 rounded text-white bg-blue-500 hover:bg-blue-600 transition"
                                             data-intervention-id="{{ $intervention->id }}">
                                         Attribuer
                                     </button>
@@ -97,11 +97,11 @@
                 </svg>
             </button>
         </div>
-        
+
         <form id="assignTechniciansForm" method="POST" action="{{ route('assign.multiple.technicians') }}">
             @csrf
             <input type="hidden" id="assign_intervention_id" name="intervention_id">
-            
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner des techniciens :</label>
                 <div class="max-h-60 overflow-y-auto border rounded p-2">
@@ -138,11 +138,11 @@
                 </svg>
             </button>
         </div>
-        
+
         <form id="cancelTechniciansForm" method="POST" action="{{ route('cancel.technicians') }}">
             @csrf
             <input type="hidden" id="cancel_intervention_id" name="intervention_id">
-            
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner les techniciens à désassigner :</label>
                 <div class="max-h-60 overflow-y-auto border rounded p-2" id="techniciensContainer">
@@ -170,20 +170,20 @@ function setupAssignTechnicians() {
     document.querySelectorAll('.assign-btn').forEach(button => {
         button.addEventListener('click', function() {
             const interventionId = this.getAttribute('data-intervention-id');
-            
+
             // Remplir le formulaire
             document.getElementById('assign_intervention_id').value = interventionId;
-            
+
             // Décocher toutes les cases
             document.querySelectorAll('#assignTechniciansForm input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // Afficher le modal
             document.getElementById('assignTechniciansModal').classList.remove('hidden');
         });
     });
-    
+
     // Validation du formulaire d'assignation
     document.getElementById('assignTechniciansForm').addEventListener('submit', function(e) {
         const checkedBoxes = this.querySelectorAll('input[name="technicien_ids[]"]:checked');
@@ -203,19 +203,19 @@ function setupCancelTechnicians() {
         button.addEventListener('click', function() {
             const interventionId = this.getAttribute('data-intervention-id');
             const techniciens = JSON.parse(this.getAttribute('data-techniciens'));
-            
+
             // Remplir le formulaire
             document.getElementById('cancel_intervention_id').value = interventionId;
-            
+
             // Charger les techniciens
             const container = document.getElementById('techniciensContainer');
             container.innerHTML = '';
-            
+
             if (techniciens.length > 0) {
                 techniciens.forEach(tech => {
                     container.innerHTML += `
                         <div class="flex items-center mb-2">
-                            <input type="checkbox" name="technicien_ids[]" id="cancel_tech_${tech.id}" 
+                            <input type="checkbox" name="technicien_ids[]" id="cancel_tech_${tech.id}"
                                    value="${tech.id}" class="mr-2" checked>
                             <label for="cancel_tech_${tech.id}" class="text-sm">
                                 ${tech.name}
@@ -226,21 +226,21 @@ function setupCancelTechnicians() {
             } else {
                 container.innerHTML = '<p class="text-gray-500">Aucun technicien assigné</p>';
             }
-            
+
             // Afficher le modal
             document.getElementById('cancelTechniciansModal').classList.remove('hidden');
         });
     });
-    
+
     // Fermer le modal
     document.getElementById('closeCancelModal').addEventListener('click', function() {
         document.getElementById('cancelTechniciansModal').classList.add('hidden');
     });
-    
+
     document.getElementById('cancelCancelModal').addEventListener('click', function() {
         document.getElementById('cancelTechniciansModal').classList.add('hidden');
     });
-    
+
     // Validation du formulaire
     document.getElementById('cancelTechniciansForm').addEventListener('submit', function(e) {
         const checkedBoxes = this.querySelectorAll('input[name="technicien_ids[]"]:checked');
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "responsive": true
     });
 
-    
+
     setupAssignTechnicians();
     setupCancelTechnicians();
 });

@@ -1,55 +1,123 @@
 <?php
+// app/Http/Controllers/NotificationController.php
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notification;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+        $this->middleware('auth'); // Protection des routes
+    }
+
+    /**
+     * Afficher la page des notifications
+     */
     public function index()
     {
-        $notifications = Auth::user()->notifications()->paginate(10);
-        return view('notifications.index', compact('notifications'));
+        $user = Auth::user();
+
+        // Récupérer les notifications paginées
+        $notifications = $this->notificationService->getUserNotifications($user->id);
+
+        // Compter les notifications non lues
+        $unreadCount = $this->notificationService->getUnreadCount($user->id);
+
+        return view('notifications.index', [
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount
+        ]);
     }
 
+    /**
+     * Récupérer les notifications récentes (pour le dropdown)
+     */
+    public function getRecent()
+    {
+        $user = Auth::user();
+        $notifications = $this->notificationService->getRecentNotifications($user->id, 5);
+        $unreadCount = $this->notificationService->getUnreadCount($user->id);
+
+        return response()->json([
+            'notifications' => $notifications->map(function($notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'time_ago' => $notification->created_at->diffForHumans(),
+                    'is_read' => (bool)$notification->read_at,
+                    'icon' => $notification->data['icon'] ?? 'bell',
+                    'color' => $notification->data['color'] ?? 'primary',
+                    'intervention_id' => $notification->data['intervention_id'] ?? null,
+                    'url' => $notification->data['url'] ?? '#'
+                ];
+            }),
+            'unread_count' => $unreadCount
+        ]);
+    }
+
+    /**
+     * Marquer une notification comme lue
+     */
     public function markAsRead($id)
     {
-        $notification = Auth::user()->notifications()->where('id', $id)->first();
+        $notification = Notification::where('id', $id)
+            ->where('notifiable_id', Auth::id())
+            ->firstOrFail();
 
-        if ($notification) {
-            $notification->markAsRead();
-        }
+        $notification->markAsRead();
 
-        return redirect()->back();
+        return response()->json([
+            'success' => true,
+            'unread_count' => $this->notificationService->getUnreadCount(Auth::id())
+        ]);
     }
 
+    /**
+     * Marquer toutes les notifications comme lues
+     */
     public function markAllAsRead()
     {
-        Auth::user()->unreadNotifications->markAsRead();
-        return redirect()->back();
+        $this->notificationService->markAllAsRead(Auth::id());
+
+        return response()->json([
+            'success' => true,
+            'unread_count' => 0
+        ]);
     }
 
-    public function showDetails($id)
-{
-    $notification = Auth::user()->notifications()->where('id', $id)->first();
+    /**
+     * Supprimer une notification
+     */
+    public function destroy($id)
+    {
+        $notification = Notification::where('id', $id)
+            ->where('notifiable_id', Auth::id())
+            ->firstOrFail();
 
-    if (!$notification) {
-        return redirect()->back()->with('error', 'Notification non trouvée.');
+        $notification->delete();
+
+        return response()->json([
+            'success' => true,
+            'unread_count' => $this->notificationService->getUnreadCount(Auth::id())
+        ]);
     }
 
-    // Marquer comme lue
-    $notification->markAsRead();
+    /**
+     * Obtenir le nombre de notifications non lues (pour AJAX)
+     */
+    public function getUnreadCount()
+    {
+        $count = $this->notificationService->getUnreadCount(Auth::id());
 
-    // Récupérer l'ID de l'intervention depuis les données de la notification
-    $interventionId = $notification->data['intervention_id'] ?? null;
-
-    if (!$interventionId) {
-        return redirect()->back()->with('error', 'Données d\'intervention manquantes.');
+        return response()->json(['count' => $count]);
     }
-
-    // Rediriger vers la page de détails de l'intervention
-    return redirect()->route('intervention.details', ['id' => $interventionId]);
-}
-
 }

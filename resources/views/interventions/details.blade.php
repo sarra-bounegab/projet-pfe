@@ -40,14 +40,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div><strong>Type:</strong> {{ $detail->type->type ?? 'Non défini' }}</div>
                         <div><strong>Technicien:</strong> {{ $detail->technicien->name ?? 'Non assigné' }}</div>
-                        
+
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                         <div>
                             <strong>details-technique:</strong>
                             <p class="text-gray-700">{{ $detail->contenu ?? 'Aucun contenu' }}</p>
                         </div>
-                       
+
                     </div>
                 </div>
                 @empty

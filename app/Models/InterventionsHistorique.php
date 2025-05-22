@@ -28,7 +28,7 @@ class InterventionsHistorique extends Model
         'created_at',
         'updated_at'
     ];
-     
+
     public function intervention()
     {
         return $this->belongsTo(Intervention::class);
